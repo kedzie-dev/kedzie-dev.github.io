@@ -1,10 +1,10 @@
-name = "Kedzie Atlas"
+name = "Kedzie Plain"
 license = "MIT"
 licenselink = "https://github.com/kedzie-dev/kedzie-dev.github.io"
-description = "Self-owned cartographic Hugo theme for Kedzie Dev Atlas."
+description = "A content-first Hugo theme for kedzie.dev."
 homepage = "https://kedzie-dev.github.io/"
-tags = ["blog", "portfolio", "atlas"]
-features = ["search", "dark-mode", "toc", "mermaid", "code-copy"]
+tags = ["blog", "portfolio"]
+features = ["search", "toc", "mermaid", "code-copy"]
 min_version = "0.164.0"
 
 [author]

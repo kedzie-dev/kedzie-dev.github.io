@@ -1,25 +1,8 @@
-colorScheme = "atlas"
-defaultAppearance = "parchment"
-autoSwitchAppearance = false
 enableSearch = true
 enableCodeCopy = true
 
-[homepage]
-  layout = "atlas"
-  showRecent = true
-  showRecentItems = 5
-  showMoreLink = true
-  showMoreLinkDest = "/notes/"
-
 [article]
   showDate = true
-  showAuthor = false
   showBreadcrumbs = true
-  showPagination = true
   showReadingTime = true
   showTableOfContents = true
-  showWordCount = false
-
-[list]
-  showBreadcrumbs = true
-  showSummary = true

@@ -1,27 +1,19 @@
 {{ define "main" }}
-  <section class="collection-page labs-ledger">
+  <section class="collection-page">
     <header class="collection-header">
-      <p class="eyebrow">INCIDENT LABS</p>
       <h1>{{ .Title }}</h1>
       {{ with .Params.summary }}<p>{{ . }}</p>{{ end }}
     </header>
-    <div class="lab-ledger-list">
-      {{ range $index, $page := .Pages.ByWeight }}
-        <article class="lab-ledger-row">
-          <div class="lab-code">LAB {{ printf "%02d" (add $index 1) }}</div>
-          <div>
-            <h2><a href="{{ .RelPermalink }}">{{ replace .Title "운영 시뮬레이터: " "" }}</a></h2>
-            <p>{{ .Params.summary | default .Summary }}</p>
-            {{ with .Params.signals }}
-              <ul class="signal-tags" aria-label="확인 신호">
-                {{ range . }}<li>{{ . }}</li>{{ end }}
-              </ul>
-            {{ end }}
-            {{ with .Params.landmarks }}<p class="lab-landmark">◎ {{ partial "landmark-labels.html" . }}</p>{{ end }}
-          </div>
-          <a class="row-link" href="{{ .RelPermalink }}">사례 흐름 보기 <span aria-hidden="true">→</span></a>
-        </article>
+    {{ with .Content }}<div class="collection-intro article-content">{{ . }}</div>{{ end }}
+    <ul class="entry-list">
+      {{ range .Paginator.Pages }}
+        <li class="entry">
+          <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+          {{ partial "article-meta.html" . }}
+          {{ with .Params.summary }}<p>{{ . }}</p>{{ end }}
+        </li>
       {{ end }}
-    </div>
+    </ul>
+    {{ partial "pagination.html" . }}
   </section>
 {{ end }}

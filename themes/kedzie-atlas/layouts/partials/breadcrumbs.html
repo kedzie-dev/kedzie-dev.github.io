@@ -1,5 +1,5 @@
 <nav class="breadcrumbs" aria-label="현재 위치">
-  <a href="{{ "/" | relLangURL }}">Atlas</a>
+  <a href="{{ "/" | relLangURL }}">홈</a>
   {{ with .CurrentSection }}
     {{ if not .IsHome }}<span aria-hidden="true">/</span><a href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}
   {{ end }}

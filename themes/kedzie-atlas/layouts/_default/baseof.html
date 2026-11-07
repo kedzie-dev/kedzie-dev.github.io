@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ site.Language.Lang | default "ko" }}" data-theme="{{ site.Params.defaultAppearance | default "parchment" }}">
+<html lang="{{ site.Language.Lang | default "ko" }}">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,16 +8,12 @@
     <link rel="canonical" href="{{ .Permalink }}">
     <link rel="icon" type="image/svg+xml" href="{{ "/favicon.svg" | relURL }}">
     {{ with .OutputFormats.Get "RSS" }}<link rel="alternate" type="application/rss+xml" href="{{ .Permalink }}" title="{{ site.Title }}">{{ end }}
-    <script>
-      (function () {
-        var stored = localStorage.getItem('kedzie-atlas-appearance');
-        if (stored === 'night' || stored === 'parchment') document.documentElement.dataset.theme = stored;
-      })();
-    </script>
     {{ $css := resources.Get "css/atlas.css" | minify | fingerprint }}
     <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
+    {{ $features := resources.Get "css/features.css" | minify | fingerprint }}
+    <link rel="stylesheet" href="{{ $features.RelPermalink }}" integrity="{{ $features.Data.Integrity }}">
   </head>
-  <body class="{{ if .IsHome }}is-home{{ else }}is-page{{ end }}">
+  <body>
     <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
     {{ partial "header.html" . }}
     <main id="main-content" tabindex="-1">

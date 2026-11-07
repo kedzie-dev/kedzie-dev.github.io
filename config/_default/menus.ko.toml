@@ -1,19 +1,19 @@
 [[main]]
-  name = "Cases"
-  pageRef = "cases"
+  name = "글"
+  pageRef = "notes"
   weight = 10
 
 [[main]]
-  name = "Incident Labs"
-  pageRef = "labs"
-  weight = 15
-
-[[main]]
-  name = "Tech Map"
-  pageRef = "tech-map"
-  weight = 18
-
-[[main]]
-  name = "Notes"
-  pageRef = "notes"
+  name = "사례"
+  pageRef = "cases"
   weight = 20
+
+[[main]]
+  name = "실습"
+  pageRef = "labs"
+  weight = 30
+
+[[main]]
+  name = "기술 지도"
+  pageRef = "tech-map"
+  weight = 40

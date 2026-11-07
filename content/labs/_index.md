@@ -1,5 +1,5 @@
 +++
-title = 'Incident Labs'
+title = '운영 실습'
 url = '/labs/'
 summary = '운영 신호를 먼저 확인하고 대응 범위와 영향을 비교하는 인터랙티브 시나리오.'
 +++

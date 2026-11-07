@@ -1,12 +1,9 @@
 <header class="site-header">
   <div class="site-header-inner">
-    <a class="site-brand" href="{{ "/" | relLangURL }}" aria-label="Kedzie Dev Atlas home">kedzie.dev</a>
-    <nav class="site-nav" aria-label="주요 탐색">
-      <button class="icon-button nav-toggle" type="button" aria-expanded="false" aria-controls="site-menu" aria-label="메뉴 열기">
-        <span aria-hidden="true">☰</span>
-      </button>
-      <ul id="site-menu" class="site-menu">
-        {{ $current := .RelPermalink }}
+    <a class="site-brand" href="{{ "/" | relLangURL }}">kedzie.dev</a>
+    <nav class="site-nav" aria-label="주요 메뉴">
+      {{ $current := .RelPermalink }}
+      <ul>
         {{ range site.Menus.main }}
           {{ $url := .URL }}
           {{ with .Page }}{{ $url = .RelPermalink }}{{ end }}
@@ -14,16 +11,6 @@
         {{ end }}
       </ul>
     </nav>
-    <div class="site-actions">
-      {{ if site.Params.enableSearch }}
-        <button class="icon-button search-toggle" type="button" aria-label="검색 열기" aria-controls="search-panel">
-          <span aria-hidden="true">⌕</span>
-        </button>
-      {{ end }}
-      <button class="theme-toggle" type="button" aria-label="Night Chart 전환" aria-pressed="false">
-        <span class="theme-toggle-mark" aria-hidden="true"></span>
-        <span class="theme-toggle-text">Night Chart</span>
-      </button>
-    </div>
+    {{ if site.Params.enableSearch }}<button class="search-toggle" type="button" aria-label="검색 열기" aria-haspopup="dialog" aria-controls="search-panel">검색</button>{{ end }}
   </div>
 </header>
