@@ -6,13 +6,13 @@ from __future__ import annotations
 import re
 import subprocess
 import sys
-import tomllib
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW_DIR = ROOT / ".github" / "workflows"
-HUGO_CONFIG = ROOT / "config" / "_default" / "hugo.toml"
+SITE = ROOT / "site"
+PUBLIC_EXTENSIONS = {".html", ".css", ".js", ".json", ".xml", ".svg", ".txt"}
 
 ALLOWED_ACTIONS = {
     "gitleaks/gitleaks-action",
@@ -63,16 +63,20 @@ def check_sensitive_files() -> None:
     check_ignored("security-check.csv")
 
 
-def check_hugo_config() -> None:
-    try:
-        with HUGO_CONFIG.open("rb") as config_file:
-            config = tomllib.load(config_file)
-    except (OSError, tomllib.TOMLDecodeError) as exc:
-        errors.append(f"cannot read {HUGO_CONFIG.relative_to(ROOT)}: {exc}")
-        return
+def check_publish_directory() -> None:
+    if not (SITE / "index.html").is_file() or not (SITE / ".nojekyll").is_file():
+        errors.append("site/ must contain index.html and .nojekyll")
 
-    if config.get("buildDrafts") is not False:
-        errors.append("config/_default/hugo.toml must set buildDrafts = false")
+    # Everything in site/ is public: keep drafts and source documents outside it.
+    for path in SITE.rglob("*"):
+        if path.is_symlink():
+            errors.append(f"publish directory contains symlink: {path.relative_to(ROOT)}")
+        elif path.is_file() and path.name != ".nojekyll":
+            if path.suffix.lower() not in PUBLIC_EXTENSIONS or any(
+                part.startswith(".") or part.lower() in {"draft", "drafts"}
+                for part in path.relative_to(SITE).parts
+            ):
+                errors.append(f"non-public file in publish directory: {path.relative_to(ROOT)}")
 
 
 def action_is_allowed(action: str) -> bool:
@@ -161,7 +165,7 @@ def check_submodules() -> None:
 
 def main() -> int:
     check_sensitive_files()
-    check_hugo_config()
+    check_publish_directory()
     check_workflows()
     check_submodules()
 

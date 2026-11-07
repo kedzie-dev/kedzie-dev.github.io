@@ -1,6 +1,6 @@
 # 기술 진화 지도: 검증 대기 인과 연결 재검토
 
-> 대상: `static/tech-evolution-map-data.js`의 `auditedLinks` 중 `needs-review` 12건.
+> 대상: `site/tech-evolution-map-data.js`의 `auditedLinks` 중 `needs-review` 12건.
 > 기준: 출처가 **두 노드의 관계와 메커니즘**을 직접 뒷받침할 때만 `검증됨`으로 바꾼다. 시간상 선후나 현재의 함께 쓰임은 인과 근거가 아니다. `제거`는 두 노드의 유용성을 부정하지 않고, 화살표만 삭제한다.
 
 ## 판정 요약

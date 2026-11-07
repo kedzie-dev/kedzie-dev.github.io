@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>운영 실습 | kedzie.dev</title>
+    <link>https://kedzie-dev.github.io/labs/</link>
+    <description>Kubernetes, GitOps, SRE 운영 기록</description>
+    <language>ko</language>
+    <atom:link href="https://kedzie-dev.github.io/labs/index.xml" rel="self" type="application/rss+xml"/>
+
+      <item>
+        <title>운영 시뮬레이터: 배포 직후 5xx 증가</title>
+        <link>https://kedzie-dev.github.io/labs/simulator/</link>
+        <pubDate>Sat, 25 Jul 2026 00:00:00 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/labs/simulator/</guid>
+        <description>배포 직후 5xx 오류가 증가한 상황에서 배포 이벤트, 로그, 의존성 지표를 비교해 롤백 판단을 연습합니다.</description>
+      </item>
+
+      <item>
+        <title>운영 시뮬레이터: DB connection pool 고갈</title>
+        <link>https://kedzie-dev.github.io/labs/db-connection-pool/</link>
+        <pubDate>Mon, 27 Jul 2026 00:00:00 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/labs/db-connection-pool/</guid>
+        <description>트래픽 증가 상황에서 connection pool 대기열, worker 동시성, DB 부하를 비교합니다.</description>
+      </item>
+
+      <item>
+        <title>운영 시뮬레이터: HPA가 잘못된 지표를 따른다</title>
+        <link>https://kedzie-dev.github.io/labs/hpa-wrong-signal/</link>
+        <pubDate>Mon, 27 Jul 2026 00:00:00 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/labs/hpa-wrong-signal/</guid>
+        <description>부하 상황에서도 autoscaling이 지연될 때 HPA 지표와 실제 수요 신호를 비교합니다.</description>
+      </item>
+
+      <item>
+        <title>운영 시뮬레이터: Argo CD drift와 sync 실패</title>
+        <link>https://kedzie-dev.github.io/labs/argo-cd-drift-sync/</link>
+        <pubDate>Mon, 27 Jul 2026 00:00:00 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/labs/argo-cd-drift-sync/</guid>
+        <description>선언한 상태와 클러스터 상태가 어긋났을 때 sync status, drift, diff log를 비교합니다.</description>
+      </item>
+
+  </channel>
+</rss>

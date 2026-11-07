@@ -1,7 +1,7 @@
 # 보안 점검 체크리스트
 
 ## 자동 검증
-- GitHub Actions의 `security` job이 아래의 `[자동]` 항목을 검증하고, 실패하면 빌드와 배포를 차단한다.
+- GitHub Actions의 `security` job이 아래의 `[자동]` 항목을 검증하고, 실패하면 업로드와 배포를 차단한다.
 - 로컬 실행: `python3 scripts/security-check.py`
 
 ## 1. 비밀정보 커밋
@@ -26,10 +26,11 @@
 - [자동] `permissions`는 허용 목록(`contents: read`, `pages: write`, `id-token: write`)만 허용
 - [자동] `pull_request_target` 사용 금지
 
-## 5. 테마 서브모듈
-- 현재 Blowfish 테마는 서브모듈이 아니라 저장소에 직접 포함됨
+## 5. 서브모듈
 - [자동] 향후 gitlink가 추가되면 `.gitmodules` 존재 여부 확인
-- [수동] 테마 업데이트 시 upstream 커밋 diff 확인 후 반영
+- [수동] 외부 라이브러리 업데이트 시 upstream 커밋 diff 확인 후 반영
 
-## 6. Draft 노출
-- [자동] `config/_default/hugo.toml`의 `buildDrafts = false` 유지
+## 6. 공개 디렉터리
+- `site/`의 파일은 모두 공개된다. 초안과 비공개 자료는 그 밖에서 관리한다.
+- [자동] `site/` 안의 숨김 파일(`.nojekyll` 제외), 초안 디렉터리, 심볼릭 링크, 허용하지 않은 파일 확장자를 차단한다.
+- [자동] HTML 링크·앵커, 검색 레코드, RSS·sitemap XML은 `python3 scripts/check-site.py`로 검증한다.

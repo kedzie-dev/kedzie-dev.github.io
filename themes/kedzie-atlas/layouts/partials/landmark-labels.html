@@ -1,7 +1,0 @@
-{{- $labels := slice -}}
-{{- range $id := . -}}
-  {{- range where hugo.Data.landmarks.landmarks "id" $id -}}
-    {{- $labels = $labels | append .short -}}
-  {{- end -}}
-{{- end -}}
-{{- delimit $labels ", " -}}

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>공용 GitLab Runner를 Deployment 하나로 보면 놓치는 것 | kedzie.dev</title>
+    <meta name="description" content="Runner manager와 Job Pod의 자원, 권한, cache 경계를 나눠 공용 실행 환경의 책임을 정리합니다.">
+    <link rel="canonical" href="https://kedzie-dev.github.io/notes/kubernetes-runner-isolation/">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/atlas.css">
+    <link rel="stylesheet" href="/css/features.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="site-brand" href="/">kedzie.dev</a>
+        <nav class="site-nav" aria-label="주요 메뉴">
+          <ul>
+            <li><a href="/notes/" aria-current="page">글</a></li>
+            <li><a href="/cases/">사례</a></li>
+            <li><a href="/labs/">실습</a></li>
+            <li><a href="/tech-map/">기술 지도</a></li>
+          </ul>
+        </nav>
+        <button class="search-toggle" type="button" aria-label="검색 열기" aria-haspopup="dialog" aria-controls="search-panel">검색</button>
+      </div>
+    </header>
+    <main id="main-content" tabindex="-1">
+      <article class="article-shell">
+        <header class="article-header">
+          <nav class="breadcrumbs" aria-label="현재 위치">
+            <a href="/">홈</a>
+            <span aria-hidden="true">/</span><a href="/notes/">운영 노트</a>
+            <span aria-hidden="true">/</span><span aria-current="page">공용 GitLab Runner를 Deployment 하나로 보면 놓치는 것</span>
+          </nav>
+          <p class="eyebrow">NOTES</p>
+          <h1>공용 GitLab Runner를 Deployment 하나로 보면 놓치는 것</h1>
+          <div class="article-meta">
+            <time datetime="2026-08-01">2026.08.01</time>
+            <span>5분 읽기</span>
+            <span>Kubernetes, Docker, Jenkins</span>
+          </div>
+          <p class="article-summary">Runner manager와 Job Pod의 자원, 권한, cache 경계를 나눠 공용 실행 환경의 책임을 정리합니다.</p>
+        </header>
+        <div class="article-layout has-aside">
+          <div class="article-content">
+            <p>GitLab Runner는 Helm chart로 설치하고 <code>Deployment</code>가 실행되면 끝나는 애플리케이션처럼 보일 수 있다. 하지만 Job이 들어올 때마다 새 Pod를 만들고, 그 Pod가 소스·변수·cache·클러스터 권한을 사용한다. 공용 Runner 운영은 Deployment 하나를 운영하는 일이 아니라 <strong>빌드 실행 환경의 경계를 설계하는 일</strong>에 가깝다.</p>
+            <h2 id="대표-사례-요약">대표 사례 요약</h2>
+            <ul>
+              <li><strong>문제</strong>: 여러 프로젝트의 빌드를 공용 Kubernetes executor에서 실행해야 했다. 편하게 한 Runner에 다 받으면 권한·cache·순간 자원 사용량이 섞일 위험이 있었다.</li>
+              <li><strong>조직 맥락과 제약</strong>: 공용 실행 환경에서는 파이프라인을 작성하는 쪽과 Kubernetes·object storage 권한을 관리하는 쪽의 책임이 분리될 수 있다. 따라서 한 프로젝트의 선택이 다른 프로젝트의 권한·자원을 바꾸지 않도록 실행 조건을 설정으로 제한해야 했다.</li>
+              <li><strong>확인 범위</strong>: GitOps values에서 non-root로 실행되는 Runner manager, Job Pod의 CPU/메모리 request·limit, 전용 namespace와 ServiceAccount, untagged job 비허용, protected·locked Runner, 프로젝트 비공유 object-storage cache 설정을 확인했다.</li>
+              <li><strong>판단</strong>: Runner manager와 Job Pod의 자원을 분리하고, 태그·보호 설정·전용 ServiceAccount·프로젝트별 cache로 실행 경계를 나눴다.</li>
+              <li><strong>검증 기준</strong>: Runner manager와 Job Pod의 자원 사용량·부족 상태, tag별 대기 시간·실패율, cache hit/miss, ServiceAccount–IAM association과 RBAC를 각각 확인해야 한다.</li>
+              <li><strong>결과와 한계</strong>: 설정 구조와 책임 경계는 확인했다. 피크 빌드의 대기 시간·cache 적중률·비용 효과와 IAM association의 실제 적용 상태는 이 글의 자료만으로 확인하지 못했다.</li>
+            </ul>
+            <h2 id="runner-pod와-job-pod는-같은-일을-하지-않는다">Runner Pod와 Job Pod는 같은 일을 하지 않는다</h2>
+            <p>Kubernetes executor에서 Runner manager는 Job을 받으면 빌드마다 별도의 Pod를 만든다.<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> 그래서 Runner manager가 안정적으로 떠 있다는 사실만으로 빌드가 안전하다고 말할 수 없다.</p>
+            <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">GitLab Job
+</span></span><span class="line"><span class="cl">  → Runner manager Pod: Job 수신·Pod 생성
+</span></span><span class="line"><span class="cl">  → Job Pod: 소스 다운로드·빌드·artifact/cache 처리
+</span></span><span class="line"><span class="cl">  → object storage cache: 다음 빌드가 재사용할 데이터
+</span></span></code></pre></div><p>Runner manager는 계속 살아 있어야 하고 Job Pod 생성을 조정한다. 반대로 Maven 빌드나 이미지 빌드는 짧은 시간에 CPU·메모리를 크게 쓸 수 있는 빌드 실행 환경이다. 둘에 같은 resource 값을 주면 무거운 빌드가 Runner manager까지 밀어낼 수 있고, Runner manager만 작게 잡으면 Job Pod의 실제 요구량이 사라지는 것도 아니다.</p>
+            <p>그래서 확인한 values에서는 Runner manager와 Job Pod의 resource request·limit을 따로 뒀다. 이 설정이 곧 적정 용량을 증명하지는 않는다. 적정값은 동시 실행 수, 빌드 종류, cluster 여유 용량을 관측해서 다시 정해야 한다. 다만 <strong>Runner manager의 안정성과 빌드 자원 소비를 같은 문제로 취급하지 않겠다</strong>는 경계는 먼저 코드로 남겼다.</p>
+            <h2 id="태그는-편의-기능이-아니라-실행-경로다">태그는 편의 기능이 아니라 실행 경로다</h2>
+            <p>공용 Runner에서 untagged job을 받으면, 작성자가 명시적으로 고르지 않은 Job도 이 실행 환경으로 들어올 수 있다. 확인한 구성에서는 untagged job을 받지 않고, 파이프라인 단계별 Runner tag로 Maven 빌드와 이미지 빌드를 나눴다. protected·locked 설정도 함께 뒀다.</p>
+            <p>이 선택으로 파이프라인에서 빌드가 실행될 환경을 확인할 수 있다. Runner를 늘릴 때도 모든 Job을 같은 권한과 같은 크기의 Pod에서 실행할 필요가 없다. 다만 tag만으로 격리가 완성되지는 않는다. 해당 Runner를 쓸 수 있는 프로젝트·브랜치와 Kubernetes RBAC가 함께 맞아야 한다.</p>
+            <h2 id="공용-runner는-팀-간-사용-계약이다">공용 Runner는 팀 간 사용 계약이다</h2>
+            <p>공용 Runner를 두는 이유는 각 팀이 Kubernetes executor와 cache를 따로 만들지 않아도 빌드할 수 있게 하기 위해서다. 이때 Runner는 단순한 공용 인프라가 아니라, 파이프라인 작성자와 플랫폼 운영자가 합의한 사용 규칙이 된다.</p>
+            <p>파이프라인 작성자는 tag로 실행 환경을 선택한다. 플랫폼 운영자는 각 tag가 어떤 Job Pod 자원, ServiceAccount, cache 정책으로 이어지는지 관리한다. 사용 규칙이 없으면 untagged Job을 모두 받거나 모든 Job에 같은 ServiceAccount와 cache를 주게 되고, 새 프로젝트 추가가 기존 프로젝트의 위험과 비용에 영향을 줄 수 있다.</p>
+            <p>그래서 이 구성에서는 모든 팀에 같은 자유도를 주기보다, Job이 들어오는 경로와 실행 조건을 먼저 고정했다. untagged Job을 받지 않고, 단계별 tag로 Maven 빌드와 이미지 빌드를 나눴다. 프로젝트별 cache를 둔 것도 같은 판단이다. 재사용 범위는 줄어들 수 있지만, 어떤 프로젝트의 빌드 데이터와 실패가 어디에 영향을 주는지는 더 좁혀 볼 수 있다.</p>
+            <p>이 설계가 특정 조직 구조에 언제나 맞는 답은 아니다. 빌드 종류와 권한 요구가 거의 같고, 운영 주체도 하나라면 여러 tag·cache 경계가 불필요한 운영 부담일 수 있다. 반대로 여러 팀이 공용 빌드 실행 환경을 쓰고 각자의 배포 권한·비밀값·자원 요구가 다르다면, 경계를 코드와 설정으로 남기는 편이 새 팀을 온보딩하거나 장애를 조사할 때의 책임 범위를 분명하게 만든다. 여기서 확인한 것은 후자의 경계를 의도한 설정이며, 실제 온보딩 속도나 운영 부담 변화는 별도 지표로 검증해야 한다.</p>
+            <h2 id="serviceaccount-권한은-job-pod-기준으로-다시-본다">ServiceAccount 권한은 Job Pod 기준으로 다시 본다</h2>
+            <p>GitLab 문서는 Kubernetes executor가 만드는 Pod가 Job 변수에 접근할 수 있으므로 cluster 접근 권한을 최소화해야 한다고 안내한다.<sup id="fnref1:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> Runner manager의 권한만 좁혀도 Job Pod가 더 넓은 ServiceAccount를 쓰면 경계는 무너진다.</p>
+            <p>확인한 구성에는 전용 namespace와 ServiceAccount가 있었다. 여기서 다음 질문을 분리해 점검해야 한다.</p>
+            <ol>
+              <li>Runner manager가 Pod 생성·상태 조회에 필요한 Kubernetes 권한은 어디까지인가?</li>
+              <li>각 Job Pod가 cluster API나 외부 object storage에 접근해야 하는가?</li>
+              <li>필요하다면 그 권한은 namespace·resource·action 단위로 제한됐는가?</li>
+              <li>AWS 자격 증명을 쓴다면 ServiceAccount와 IAM role의 연결이 GitOps manifest 밖의 Pod Identity association으로 관리되는가?</li>
+            </ol>
+            <p>4번은 특히 중요하다. EKS Pod Identity는 namespace의 ServiceAccount와 IAM role을 association으로 연결할 수 있다.<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup> 따라서 매니페스트에 annotation이 없다고 권한이 없다고 결론 내리거나, 반대로 ServiceAccount가 있다고 IAM 최소 권한이 보장된다고 말할 수 없다. 이 글의 자료에서는 association의 실제 상태를 확인하지 못했으므로 적용 여부를 주장하지 않는다.</p>
+            <h2 id="cache는-빨라지는-대신-경계를-가져야-한다">cache는 빨라지는 대신 경계를 가져야 한다</h2>
+            <p>빌드 cache를 object storage에 두면 Runner Pod가 매번 사라져도 의존성·중간 산출물을 재사용할 수 있다.<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup> 하지만 여러 프로젝트가 같은 cache를 쓰게 두면 데이터 격리와 오염 원인을 추적하기 어려워진다.</p>
+            <p>확인한 구성은 프로젝트별 비공유 cache를 사용했다. 이는 재사용 범위를 좁히는 대신 cache hit가 줄고 저장소 객체가 늘 수 있다는 선택이다. 그래서 cache를 설계할 때는 “얼마나 빨라졌나”만이 아니라 다음도 함께 확인해야 한다.</p>
+            <ul>
+              <li>cache key가 프로젝트와 보호된 ref를 넘나들지 않는가</li>
+              <li>읽기·쓰기 권한이 필요한 Job에만 있는가</li>
+              <li>TTL·용량·객체 정리 정책이 있는가</li>
+              <li>cache 오류가 빌드 실패인지 성능 저하인지 구분 가능한가</li>
+            </ul>
+            <p>GitLab도 protected ref와 non-protected ref의 cache 분리를 지원한다.<sup id="fnref1:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup> 기능을 켜는 것보다, 어떤 빌드끼리 재사용해도 되는지를 먼저 정하는 편이 안전하다.</p>
+            <h2 id="남은-검증-항목">남은 검증 항목</h2>
+            <p>이 구성에서 확인한 것은 의도와 설정의 경계다. 운영 효과는 별도의 기록으로 검증해야 한다.</p>
+            <ul>
+              <li>동시 빌드 때 Runner manager와 Job Pod의 자원 사용량·부족 상태가 각각 어떤가</li>
+              <li>tag별로 대기 시간·실패율이 달라지는가</li>
+              <li>cache hit/miss와 저장소 비용이 어떤 트레이드오프를 만드는가</li>
+              <li>ServiceAccount–IAM association과 RBAC가 실제 최소 권한인가</li>
+            </ul>
+            <p>공용 Runner의 목표는 어떤 Job이 어떤 권한과 자원으로 실행되는지 알 수 있게 만드는 것이다. 그래야 새 프로젝트를 추가하거나 빌드가 실패했을 때 Runner manager, Job Pod, cache, 권한 중 어디를 먼저 확인할지 좁힐 수 있다.</p>
+            <div class="footnotes" role="doc-endnotes">
+              <hr>
+              <ol>
+                <li id="fn:1">
+                  <p><a href="https://docs.gitlab.com/runner/executors/kubernetes/">GitLab Runner — Kubernetes executor</a> — Job별 Pod 생성과 Kubernetes 권한 주의사항.&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+                <li id="fn:2">
+                  <p><a href="https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html">Amazon EKS — Pod Identity</a> — ServiceAccount와 IAM role association.&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+                <li id="fn:3">
+                  <p><a href="https://docs.gitlab.com/ci/caching/">GitLab CI/CD — cache</a> — 분산 cache와 protected/non-protected ref cache 분리.&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+              </ol>
+            </div>
+          </div>
+          <aside class="article-aside">
+            <aside class="toc-panel" aria-labelledby="toc-title">
+              <h2 id="toc-title">목차</h2>
+              <nav id="TableOfContents">
+                <ul>
+                  <li><a href="#대표-사례-요약">대표 사례 요약</a></li>
+                  <li><a href="#runner-pod와-job-pod는-같은-일을-하지-않는다">Runner Pod와 Job Pod는 같은 일을 하지 않는다</a></li>
+                  <li><a href="#태그는-편의-기능이-아니라-실행-경로다">태그는 편의 기능이 아니라 실행 경로다</a></li>
+                  <li><a href="#공용-runner는-팀-간-사용-계약이다">공용 Runner는 팀 간 사용 계약이다</a></li>
+                  <li><a href="#serviceaccount-권한은-job-pod-기준으로-다시-본다">ServiceAccount 권한은 Job Pod 기준으로 다시 본다</a></li>
+                  <li><a href="#cache는-빨라지는-대신-경계를-가져야-한다">cache는 빨라지는 대신 경계를 가져야 한다</a></li>
+                  <li><a href="#남은-검증-항목">남은 검증 항목</a></li>
+                </ul>
+              </nav>
+            </aside>
+          </aside>
+        </div>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <p>© 2026 kedzie.dev</p>
+      <a href="/index.xml">RSS</a>
+    </footer>
+    <section id="search-panel" class="search-panel" hidden role="dialog" aria-modal="true" aria-labelledby="search-title">
+      <div class="search-box">
+        <div class="search-head">
+          <h2 id="search-title">검색</h2>
+          <button class="icon-button search-close" type="button" aria-label="검색 닫기">×</button>
+        </div>
+        <label class="search-field">
+          <span>키워드</span>
+          <input id="search-query" type="search" autocomplete="off" placeholder="GitOps, HPA, TargetGroupBinding">
+        </label>
+        <div id="search-results" class="search-results" role="list" aria-live="polite"></div>
+      </div>
+    </section>
+    <script defer src="/js/atlas.js"></script>  </body>
+</html>

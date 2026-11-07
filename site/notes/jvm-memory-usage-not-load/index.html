@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ECS on EC2는 정말 Fargate보다 저렴했을까 — 고밀도 배치에서 놓친 호스트 시스템 메모리 | kedzie.dev</title>
+    <meta name="description" content="ECS on EC2 고밀도 배치에서 시스템 메모리와 실패 예산을 비용 판단에 포함해야 하는 이유를 정리합니다.">
+    <link rel="canonical" href="https://kedzie-dev.github.io/notes/jvm-memory-usage-not-load/">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/atlas.css">
+    <link rel="stylesheet" href="/css/features.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="site-brand" href="/">kedzie.dev</a>
+        <nav class="site-nav" aria-label="주요 메뉴">
+          <ul>
+            <li><a href="/notes/" aria-current="page">글</a></li>
+            <li><a href="/cases/">사례</a></li>
+            <li><a href="/labs/">실습</a></li>
+            <li><a href="/tech-map/">기술 지도</a></li>
+          </ul>
+        </nav>
+        <button class="search-toggle" type="button" aria-label="검색 열기" aria-haspopup="dialog" aria-controls="search-panel">검색</button>
+      </div>
+    </header>
+    <main id="main-content" tabindex="-1">
+      <article class="article-shell">
+        <header class="article-header">
+          <nav class="breadcrumbs" aria-label="현재 위치">
+            <a href="/">홈</a>
+            <span aria-hidden="true">/</span><a href="/notes/">운영 노트</a>
+            <span aria-hidden="true">/</span><span aria-current="page">ECS on EC2는 정말 Fargate보다 저렴했을까 — 고밀도 배치에서 놓친 호스트 시스템 메모리</span>
+          </nav>
+          <p class="eyebrow">NOTES</p>
+          <h1>ECS on EC2는 정말 Fargate보다 저렴했을까 — 고밀도 배치에서 놓친 호스트 시스템 메모리</h1>
+          <div class="article-meta">
+            <time datetime="2026-07-19">2026.07.19</time>
+            <span>5분 읽기</span>
+            <span>Docker</span>
+          </div>
+          <p class="article-summary">ECS on EC2 고밀도 배치에서 시스템 메모리와 실패 예산을 비용 판단에 포함해야 하는 이유를 정리합니다.</p>
+        </header>
+        <div class="article-layout has-aside">
+          <div class="article-content">
+            <p>비용을 줄이기 위해 ECS on EC2를 선택하고, <code>bridge</code>와 동적 포트 매핑으로 한 인스턴스에 태스크를 밀도 있게 배치했다. 십수 개 서비스를 동시에 배포한 뒤 호스트 메모리 압박, ECS·SSM agent 연결 단절, 서비스 전반의 504가 발생했다.</p>
+            <p>구성상 문제는 <code>ECS_RESERVED_MEMORY</code>를 설정하지 않아 ECS agent·컨테이너 런타임·운영체제가 사용할 메모리를 태스크 배치 용량에서 명시적으로 제외하지 않았다는 점이었다. 여기에 여러 태스크의 동시 기동과 일부 호스트로의 집중이 겹쳤다.</p>
+            <h2 id="1-고밀도-배치를-선택한-이유">1. 고밀도 배치를 선택한 이유</h2>
+            <p>Fargate는 태스크가 요청한 vCPU·메모리·스토리지와 실행 시간에 따라 과금되고, EC2는 선택한 인스턴스 용량을 기준으로 과금된다. 태스크를 안정적으로 높은 밀도로 배치할 수 있다면 EC2가 비용 계산상 유리했다.<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup></p>
+            <p>ECS on EC2의 <code>awsvpc</code> 태스크는 태스크마다 ENI가 필요하다. trunking을 사용하지 않을 때 <code>c5.large</code>의 기본 ENI 한도는 3개이므로 <code>awsvpc</code> 태스크를 통상 2개까지 배치할 수 있다.<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup> <code>bridge</code>에서 <code>hostPort</code>를 비우면 동적 포트 매핑으로 같은 서비스를 한 호스트에 여러 개 실행할 수 있어 ENI 한도보다 CPU·메모리에 가깝게 태스크를 배치할 수 있다.<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup></p>
+            <h2 id="2-배치-용량에서-빠진-시스템-메모리">2. 배치 용량에서 빠진 시스템 메모리</h2>
+            <p>ECS는 태스크 정의에 선언된 CPU와 메모리 요구량으로 태스크를 배치한다. EC2 기반 태스크에서 태스크 수준 메모리를 지정하지 않고 컨테이너에 <code>memoryReservation</code>과 <code>memory</code>를 함께 설정하면 <code>memoryReservation</code>이 인스턴스의 가용 메모리에서 차감된다. 컨테이너는 실행 중 <code>memory</code> hard limit까지 추가로 사용할 수 있다. 여러 태스크의 실제 사용량이 동시에 증가하면 호스트 메모리가 오버커밋될 수 있다.<sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup></p>
+            <p>EC2 기반 ECS의 <code>ECS_RESERVED_MEMORY</code>는 지정한 용량을 인스턴스의 등록 메모리에서 차감해 태스크 배치 대상에서 제외한다.<sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup> 이 설정의 기본값은 <code>0</code>이며, 당시에는 별도로 설정하지 않았다.<sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup></p>
+            <p><code>ECS_RESERVED_MEMORY</code>는 메모리를 물리적으로 격리하지 않는다. ECS에 보고하는 배치 가능 용량만 줄이므로, 태스크가 reservation을 초과해 사용하는 메모리는 컨테이너의 hard limit과 동시 기동 수로 함께 통제해야 한다.<sup id="fnref1:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup><sup id="fnref1:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup></p>
+            <p>서비스 설정 일괄 변경과 예약 재기동으로 십수 개 서비스의 새 태스크가 짧은 시간에 시작됐다. 일부 호스트에 태스크가 집중된 직후 메모리 압박과 ECS·SSM agent 연결 단절이 관측됐고, Session Manager 접속도 실패했다.</p>
+            <p><code>agentConnected=false</code>는 ECS container agent와 ECS 백엔드의 연결 단절을 의미할 뿐 agent 프로세스의 종료나 OOM을 입증하지 않는다.<sup id="fnref:7"><a href="#fn:7" class="footnote-ref" role="doc-noteref">7</a></sup> 당시 호스트에 접속하지 못해 <code>dmesg</code>, system journal, ECS agent·Docker 로그를 확인하지 못했다. OOM Killer가 agent를 종료했을 가능성은 가설로 남겼다.</p>
+            <h2 id="3-agent-단절의-영향">3. Agent 단절의 영향</h2>
+            <p>agent 연결이 끊긴 인스턴스에는 새 태스크를 배치할 수 없어 태스크가 <code>PENDING</code>으로 남고, Capacity Provider 관리형 스케일링과 ASG 확장이 뒤따를 수 있다.<sup id="fnref:8"><a href="#fn:8" class="footnote-ref" role="doc-noteref">8</a></sup> 새 인스턴스가 등록되기까지 시간이 필요하므로 이미 발생한 짧은 메모리 압박을 즉시 해소하지는 못한다.</p>
+            <p>이 사건에서는 태스크 기동과 재배치가 지연되면서 요청에 응답할 정상 타깃이 부족해졌고 504가 발생했다. agent 단절이 항상 504를 발생시키는 것은 아니며, ALB 응답은 타깃 상태와 요청 처리 상황에 따라 달라진다.<sup id="fnref:9"><a href="#fn:9" class="footnote-ref" role="doc-noteref">9</a></sup></p>
+            <h2 id="4-안전한-배치-밀도의-비용">4. 안전한 배치 밀도의 비용</h2>
+            <p>안전한 배치 밀도에는 애플리케이션 태스크의 reservation뿐 아니라 시스템 프로세스용 메모리, 동시 기동, 인스턴스 한 대의 장애를 흡수할 용량이 포함돼야 한다. <code>ECS_RESERVED_MEMORY</code>와 클러스터 예비 용량을 적용하면 인스턴스당 태스크 수가 줄 수 있다. 이는 공유 호스트 보호에 필요한 비용이며, EC2와 Fargate를 비교할 때 인스턴스 단가와 함께 계산해야 한다.</p>
+            <h2 id="5-예방책">5. 예방책</h2>
+            <ul>
+              <li><strong>시스템용 메모리 제외</strong>: ECS agent·컨테이너 런타임·운영체제의 사용량을 측정해 <code>ECS_RESERVED_MEMORY</code>를 설정하고 등록 메모리를 확인한다.</li>
+              <li><strong>태스크 메모리 제한</strong>: <code>memoryReservation</code>과 <code>memory</code> hard limit을 실제 사용량에 맞게 검증한다.</li>
+              <li><strong>동시 기동 제한</strong>: rolling deployment의 <code>maximumPercent</code>와 <code>minimumHealthyPercent</code>를 조정하고, 여러 서비스 사이의 배포 동시성은 배포 파이프라인에서 제한한다. 서비스 하나의 설정만으로 여러 서비스 전체의 동시 기동 수를 제어할 수는 없다.<sup id="fnref:10"><a href="#fn:10" class="footnote-ref" role="doc-noteref">10</a></sup></li>
+              <li><strong>배치 분산</strong>: <code>spread(AZ) + binpack(memory)</code>를 <code>spread(AZ) + spread(instanceId)</code>로 변경해 동일 서비스의 replica를 가능한 한 다른 인스턴스에 배치한다. placement strategy는 서비스별 best effort이므로 여러 단일 태스크 서비스 전체의 균등 분산을 보장하지 않는다.<sup id="fnref:11"><a href="#fn:11" class="footnote-ref" role="doc-noteref">11</a></sup></li>
+              <li><strong>예비 용량 확보</strong>: ASG 최소 용량에 동시 기동과 인스턴스 한 대의 장애를 흡수할 용량을 반영한다.</li>
+            </ul>
+            <p>인스턴스 분산 배치와 ASG 최소 용량 조정 뒤 같은 패턴은 관찰 범위에서 재발하지 않았다. 여러 설정을 함께 변경했으므로 어느 하나가 장애를 해소했다고 단정할 수는 없다.</p>
+            <p>재발 시에는 다음 데이터를 같은 시간대에 수집해야 한다.</p>
+            <ul>
+              <li>ECS agent·Docker·system journal·<code>dmesg</code>의 OOM 기록</li>
+              <li><code>agentConnected=false</code>, ECS 서비스 이벤트, <code>PENDING</code> 태스크, ASG lifecycle history</li>
+              <li>ALB access log·타깃 헬스·504 비율</li>
+              <li>태스크별·호스트별 메모리 사용량과 동시 기동 수</li>
+            </ul>
+            <h2 id="6-ec2와-fargate의-비교">6. EC2와 Fargate의 비교</h2>
+            <p>Fargate는 태스크별로 격리된 인프라를 제공해 여러 태스크가 EC2 호스트와 ECS agent를 공유하는 장애 영역을 줄인다. 태스크 자체의 메모리 한도나 OOM까지 해결하지는 않는다.<sup id="fnref:12"><a href="#fn:12" class="footnote-ref" role="doc-noteref">12</a></sup> ECS on EC2도 안전한 배치 밀도를 유지하고 호스트를 운영할 수 있다면 합리적인 선택이다.</p>
+            <p>비용 비교에는 같은 리전·OS·아키텍처·구매 옵션에서 태스크 요청량과 실행 시간을 맞추고, 안전하게 유지할 수 있는 배치 밀도와 예비 용량을 반영해야 한다. EBS, public IPv4, 로그, 데이터 전송, AMI·ECS agent 관리와 장애 대응 비용도 포함해야 한다.</p>
+            <p>이 사례의 핵심은 특정 애플리케이션 런타임이 아니라, 태스크 밀도를 높이면서 시스템 프로세스가 사용할 메모리를 배치 용량에서 제외하지 않았다는 점이다. EC2와 Fargate는 인스턴스 단가가 아니라 시스템용 메모리와 실패 예산을 포함한 실제 사용 가능 용량의 총비용으로 비교해야 한다.</p>
+            <div class="footnotes" role="doc-endnotes">
+              <hr>
+              <ol>
+                <li id="fn:1">
+                  <p><a href="https://aws.amazon.com/fargate/pricing/">AWS Fargate Pricing</a> 및 <a href="https://aws.amazon.com/ec2/pricing/on-demand/">Amazon EC2 On-Demand Pricing</a> — 두 서비스의 과금 방식과 비교 조건.&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+                <li id="fn:2">
+                  <p><a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-instance-eni.html">Increasing Amazon ECS Linux container instance network interfaces</a> — <code>awsvpc</code> 태스크의 ENI 한도와 trunking 조건.&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+                <li id="fn:3">
+                  <p><a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/networking-networkmode-bridge.html">Use Docker&rsquo;s virtual network for Amazon ECS Linux tasks</a> — <code>bridge</code> 모드와 동적 포트 매핑.&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+                <li id="fn:4">
+                  <p><a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters_ec2.html#container_definition_memory">Amazon ECS task definition parameters for EC2</a> — 컨테이너 <code>memoryReservation</code> soft limit과 <code>memory</code> hard limit의 배치·실행 동작.&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+                <li id="fn:5">
+                  <p><a href="https://docs.aws.amazon.com/ko_kr/AmazonECS/latest/developerguide/memory-management.html">Amazon ECS Linux 컨테이너 인스턴스 메모리 예약</a> — <code>ECS_RESERVED_MEMORY</code>로 태스크 배치 가능 메모리에서 시스템용 용량을 제외하는 방법과 시스템 프로세스 경합 위험.&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+                <li id="fn:6">
+                  <p><a href="https://github.com/aws/amazon-ecs-agent/blob/master/README.md#environment-variables">Amazon ECS container agent configuration</a> — <code>ECS_RESERVED_MEMORY</code>의 기본값 <code>0</code>과 실제 메모리 사용량을 물리적으로 예약하지 않는다는 설명.&#160;<a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+                <li id="fn:7">
+                  <p><a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs_container_instance_events.html">Amazon ECS container instance state change events</a> — <code>agentConnected</code>는 agent와 ECS 백엔드의 연결 상태를 나타낸다.&#160;<a href="#fnref:7" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+                <li id="fn:8">
+                  <p><a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs_service_events.html">Amazon ECS service action events</a> — agent 연결 단절은 태스크 배치 실패 원인 중 하나다.&#160;<a href="#fnref:8" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+                <li id="fn:9">
+                  <p><a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-troubleshooting.html">Troubleshoot your Application Load Balancers</a> — HTTP 504의 원인과 점검 항목.&#160;<a href="#fnref:9" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+                <li id="fn:10">
+                  <p><a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-type-ecs.html">Deploy Amazon ECS services by replacing tasks</a> — rolling deployment의 <code>minimumHealthyPercent</code>와 <code>maximumPercent</code> 동작.&#160;<a href="#fnref:10" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+                <li id="fn:11">
+                  <p><a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-placement.html">How Amazon ECS places tasks on container instances</a> — EC2 task placement strategy의 적용 범위와 best-effort 특성.&#160;<a href="#fnref:11" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+                <li id="fn:12">
+                  <p><a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security-shared-model.html">AWS shared responsibility model for Amazon ECS</a> — Fargate 태스크의 격리된 인프라와 EC2 launch type의 고객 관리 범위.&#160;<a href="#fnref:12" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+              </ol>
+            </div>
+          </div>
+          <aside class="article-aside">
+            <aside class="toc-panel" aria-labelledby="toc-title">
+              <h2 id="toc-title">목차</h2>
+              <nav id="TableOfContents">
+                <ul>
+                  <li><a href="#1-고밀도-배치를-선택한-이유">1. 고밀도 배치를 선택한 이유</a></li>
+                  <li><a href="#2-배치-용량에서-빠진-시스템-메모리">2. 배치 용량에서 빠진 시스템 메모리</a></li>
+                  <li><a href="#3-agent-단절의-영향">3. Agent 단절의 영향</a></li>
+                  <li><a href="#4-안전한-배치-밀도의-비용">4. 안전한 배치 밀도의 비용</a></li>
+                  <li><a href="#5-예방책">5. 예방책</a></li>
+                  <li><a href="#6-ec2와-fargate의-비교">6. EC2와 Fargate의 비교</a></li>
+                </ul>
+              </nav>
+            </aside>
+          </aside>
+        </div>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <p>© 2026 kedzie.dev</p>
+      <a href="/index.xml">RSS</a>
+    </footer>
+    <section id="search-panel" class="search-panel" hidden role="dialog" aria-modal="true" aria-labelledby="search-title">
+      <div class="search-box">
+        <div class="search-head">
+          <h2 id="search-title">검색</h2>
+          <button class="icon-button search-close" type="button" aria-label="검색 닫기">×</button>
+        </div>
+        <label class="search-field">
+          <span>키워드</span>
+          <input id="search-query" type="search" autocomplete="off" placeholder="GitOps, HPA, TargetGroupBinding">
+        </label>
+        <div id="search-results" class="search-results" role="list" aria-live="polite"></div>
+      </div>
+    </section>
+    <script defer src="/js/atlas.js"></script>  </body>
+</html>

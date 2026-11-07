@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>웹 표현 계층 | kedzie.dev</title>
+    <meta name="description" content="HTML로 문서의 의미와 구조를 표현하고 CSS로 표현을 분리하면, 화면 변경의 영향 범위를 더 분명하게 관리할 수 있다.">
+    <link rel="canonical" href="https://kedzie-dev.github.io/tech-map/extensions/web-presentation-layer/">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/atlas.css">
+    <link rel="stylesheet" href="/css/features.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="site-brand" href="/">kedzie.dev</a>
+        <nav class="site-nav" aria-label="주요 메뉴">
+          <ul>
+            <li><a href="/notes/">글</a></li>
+            <li><a href="/cases/">사례</a></li>
+            <li><a href="/labs/">실습</a></li>
+            <li><a href="/tech-map/" aria-current="page">기술 지도</a></li>
+          </ul>
+        </nav>
+        <button class="search-toggle" type="button" aria-label="검색 열기" aria-haspopup="dialog" aria-controls="search-panel">검색</button>
+      </div>
+    </header>
+    <main id="main-content" tabindex="-1">
+      <article class="tem-extension-page">
+        <div class="tem-extension-layout">
+          <div class="tem-extension-main">
+            <nav class="tem-extension-breadcrumb" aria-label="현재 위치">
+              <a href="/tech-map/">기술 진화 지도</a>
+              <span aria-hidden="true">/</span>
+              <a href="/tech-map/?node=html">HTML</a>
+              <span aria-hidden="true">/</span>
+              <span aria-current="page">웹 표현 계층</span>
+            </nav>
+            <header class="tem-extension-hero">
+              <p>EXPANSION</p>
+              <h1>웹 표현 계층</h1>
+              <p>HTML로 문서의 의미와 구조를 표현하고 CSS로 표현을 분리하면, 화면 변경의 영향 범위를 더 분명하게 관리할 수 있다.</p>
+            </header>
+            <div class="tem-extension-content article-content">
+              <h2 id="구조와-표현은-다른-변경-이유를-가진다">구조와 표현은 다른 변경 이유를 가진다</h2>
+              <p>HTML은 문서의 제목, 목록, 입력처럼 콘텐츠의 구조와 의미를 표현한다. CSS는 그 구조를 어떤 화면 크기와 매체에서 어떻게 보일지 정한다. 둘을 나누면 디자인 변경이 문서 의미를 바꾸지 않고, 콘텐츠 구조 변경도 모든 표현 규칙을 함께 흔들지 않게 된다.</p>
+              <p>이 분리는 재사용의 출발점이지만 자동으로 좋은 UI를 보장하지는 않는다. 의미 없는 컨테이너와 특정 화면에만 맞춘 선택자는 결국 변경 비용을 다시 키운다.</p>
+              <h2 id="접근성과-성능도-표현-계층의-품질이다">접근성과 성능도 표현 계층의 품질이다</h2>
+              <p>구조가 의미를 담으면 보조 기술과 검색 도구가 문서를 해석할 기반이 생긴다. 표현을 숨기거나 재배치해도 키보드 탐색 순서와 읽기 순서가 달라지지 않는지 확인해야 한다.</p>
+              <p>스타일시트는 렌더링에 필요한 자원이다. 사용하지 않는 규칙, 큰 글꼴, 화면 전환 효과는 사용자 경험에 영향을 준다. 따라서 UI 배포는 화면 모양뿐 아니라 접근성 회귀와 성능 예산을 함께 검증해야 한다.</p>
+              <h2 id="운영에서-확인할-질문">운영에서 확인할 질문</h2>
+              <ul>
+                <li>구조를 나타내는 HTML과 시각적 배치를 위한 CSS 책임이 섞이지 않았는가?</li>
+                <li>키보드·보조 기술의 탐색 순서가 화면에서 이해되는 순서와 맞는가?</li>
+                <li>스타일·글꼴 자원이 초기 렌더링과 상호작용 지연에 미치는 영향은 무엇인가?</li>
+                <li>화면 변경을 자동 접근성·성능 검증에 포함했는가?</li>
+              </ul>
+              <h2 id="출처">출처</h2>
+              <ul>
+                <li><a href="https://www.w3.org/TR/html-design-principles/">HTML Design Principles</a></li>
+                <li><a href="https://www.w3.org/TR/CSS2/">CSS 2.1 Specification</a></li>
+              </ul>
+            </div>
+            <section class="tem-next-extensions" aria-labelledby="tem-next-title">
+              <p>CONTINUE EXPLORING</p>
+              <h2 id="tem-next-title">다음으로 읽기</h2>
+              <ul>
+                <li><a href="/tech-map/extensions/browser-interactions/"><strong>브라우저 상호작용</strong><span>구조와 표현 위에 비동기 상호작용이 더해질 때 생기는 상태·성능 문제를 읽는다. →</span></a></li>
+              </ul>
+            </section>
+          </div>
+        </div>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <p>© 2026 kedzie.dev</p>
+      <a href="/index.xml">RSS</a>
+    </footer>
+    <section id="search-panel" class="search-panel" hidden role="dialog" aria-modal="true" aria-labelledby="search-title">
+      <div class="search-box">
+        <div class="search-head">
+          <h2 id="search-title">검색</h2>
+          <button class="icon-button search-close" type="button" aria-label="검색 닫기">×</button>
+        </div>
+        <label class="search-field">
+          <span>키워드</span>
+          <input id="search-query" type="search" autocomplete="off" placeholder="GitOps, HPA, TargetGroupBinding">
+        </label>
+        <div id="search-results" class="search-results" role="list" aria-live="polite"></div>
+      </div>
+    </section>
+    <script defer src="/js/atlas.js"></script>  </body>
+</html>

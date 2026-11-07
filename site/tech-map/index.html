@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>기술 진화 지도 | kedzie.dev</title>
+    <meta name="description" content="웹의 탄생부터 AI 에이전트까지, 시간축과 인과 관계로 기술 선택의 흐름을 읽습니다.">
+    <link rel="canonical" href="https://kedzie-dev.github.io/tech-map/">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="alternate" type="application/rss+xml" href="https://kedzie-dev.github.io/tech-map/index.xml" title="kedzie.dev">
+    <link rel="stylesheet" href="/css/atlas.css">
+    <link rel="stylesheet" href="/css/features.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="site-brand" href="/">kedzie.dev</a>
+        <nav class="site-nav" aria-label="주요 메뉴">
+          <ul>
+            <li><a href="/notes/">글</a></li>
+            <li><a href="/cases/">사례</a></li>
+            <li><a href="/labs/">실습</a></li>
+            <li><a href="/tech-map/" aria-current="page">기술 지도</a></li>
+          </ul>
+        </nav>
+        <button class="search-toggle" type="button" aria-label="검색 열기" aria-haspopup="dialog" aria-controls="search-panel">검색</button>
+      </div>
+    </header>
+    <main id="main-content" tabindex="-1">
+      <article class="tech-evolution-map-page">
+        <header class="collection-header tech-map-header">
+          <p class="eyebrow">TECHNOLOGY EVOLUTION MAP</p>
+          <h1>기술은 목록이 아니라, 한계를 넘기 위해 이어진 선택이다.</h1>
+          <p>웹의 탄생부터 AI 에이전트까지. 시간축을 따라 읽고, 한 노드가 해결한 한계와 다음 변화를 탐색하세요.</p>
+        </header>
+        <div class="article-content tech-map-content">
+          <div id="tech-evolution-map-root"></div>
+          <script defer src="/tech-evolution-map-data.js"></script><script defer src="/tech-evolution-map.js"></script>    </div>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <p>© 2026 kedzie.dev</p>
+      <a href="/index.xml">RSS</a>
+    </footer>
+    <section id="search-panel" class="search-panel" hidden role="dialog" aria-modal="true" aria-labelledby="search-title">
+      <div class="search-box">
+        <div class="search-head">
+          <h2 id="search-title">검색</h2>
+          <button class="icon-button search-close" type="button" aria-label="검색 닫기">×</button>
+        </div>
+        <label class="search-field">
+          <span>키워드</span>
+          <input id="search-query" type="search" autocomplete="off" placeholder="GitOps, HPA, TargetGroupBinding">
+        </label>
+        <div id="search-results" class="search-results" role="list" aria-live="polite"></div>
+      </div>
+    </section>
+    <script defer src="/js/atlas.js"></script>  </body>
+</html>

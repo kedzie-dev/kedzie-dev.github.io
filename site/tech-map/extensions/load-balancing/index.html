@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>로드 밸런싱 | kedzie.dev</title>
+    <meta name="description" content="로드 밸런싱은 요청을 여러 실행 단위에 나누지만, 세션·헬스 체크·장애 감지의 기준을 애플리케이션 의미와 맞춰야 한다.">
+    <link rel="canonical" href="https://kedzie-dev.github.io/tech-map/extensions/load-balancing/">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/atlas.css">
+    <link rel="stylesheet" href="/css/features.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="site-brand" href="/">kedzie.dev</a>
+        <nav class="site-nav" aria-label="주요 메뉴">
+          <ul>
+            <li><a href="/notes/">글</a></li>
+            <li><a href="/cases/">사례</a></li>
+            <li><a href="/labs/">실습</a></li>
+            <li><a href="/tech-map/" aria-current="page">기술 지도</a></li>
+          </ul>
+        </nav>
+        <button class="search-toggle" type="button" aria-label="검색 열기" aria-haspopup="dialog" aria-controls="search-panel">검색</button>
+      </div>
+    </header>
+    <main id="main-content" tabindex="-1">
+      <article class="tem-extension-page">
+        <div class="tem-extension-layout">
+          <div class="tem-extension-main">
+            <nav class="tem-extension-breadcrumb" aria-label="현재 위치">
+              <a href="/tech-map/">기술 진화 지도</a>
+              <span aria-hidden="true">/</span>
+              <a href="/tech-map/?node=cdn">콘텐츠 전송 네트워크</a>
+              <span aria-hidden="true">/</span>
+              <span aria-current="page">로드 밸런싱</span>
+            </nav>
+            <header class="tem-extension-hero">
+              <p>EXPANSION</p>
+              <h1>로드 밸런싱</h1>
+              <p>로드 밸런싱은 요청을 여러 실행 단위에 나누지만, 세션·헬스 체크·장애 감지의 기준을 애플리케이션 의미와 맞춰야 한다.</p>
+            </header>
+            <div class="tem-extension-content article-content">
+              <h2 id="분산은-가용성을-자동으로-만들지-않는다">분산은 가용성을 자동으로 만들지 않는다</h2>
+              <p>로드 밸런서는 들어오는 요청을 여러 대상에 분산하고, 정상 대상만 선택하도록 도울 수 있다. 이로써 한 인스턴스의 용량과 장애가 전체 서비스에 미치는 영향을 줄일 수 있다.</p>
+              <p>하지만 대상이 여러 개라고 해서 서비스가 항상 복구 가능한 것은 아니다. 모든 대상이 같은 데이터베이스·외부 의존성·잘못된 배포에 묶여 있다면, 트래픽만 더 넓게 같은 실패로 보낼 수 있다.</p>
+              <h2 id="헬스-체크는-업무-의미를-알아야-한다">헬스 체크는 업무 의미를 알아야 한다</h2>
+              <p>헬스 체크가 포트가 열렸는지만 확인하면, 실제 요청을 처리할 수 없는 대상을 정상으로 볼 수 있다. 반대로 데이터베이스의 일시 지연을 즉시 비정상으로 판단하면, 정상 인스턴스까지 한꺼번에 제외하는 연쇄 장애를 만들 수 있다.</p>
+              <p>세션 고정은 상태를 가진 애플리케이션을 당장 운영하는 데 도움이 될 수 있지만, 특정 인스턴스 의존성과 불균형을 만든다. 상태를 어디에 둘지, 재시도는 어느 요청에 안전한지, 장애 전환 중 무엇을 허용할지를 함께 설계해야 한다.</p>
+              <h2 id="운영에서-확인할-질문">운영에서 확인할 질문</h2>
+              <ul>
+                <li>헬스 체크 성공이 사용자 요청 성공을 충분히 대표하는가?</li>
+                <li>대상 제외·재등록의 속도가 장애 전파와 복구에 어떤 영향을 주는가?</li>
+                <li>세션·업로드·장기 연결 같은 상태가 분산 정책과 충돌하지 않는가?</li>
+                <li>지연, 오류율, 대상별 부하를 사용자 영향과 연결해 관측하는가?</li>
+              </ul>
+              <h2 id="출처">출처</h2>
+              <ul>
+                <li><a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-health-checks.html">AWS: Health Checks for Your Target Groups</a></li>
+                <li><a href="https://www.rfc-editor.org/rfc/rfc9110.html">RFC 9110 — HTTP Semantics</a></li>
+              </ul>
+            </div>
+            <section class="tem-next-extensions" aria-labelledby="tem-next-title">
+              <p>CONTINUE EXPLORING</p>
+              <h2 id="tem-next-title">다음으로 읽기</h2>
+              <ul>
+                <li><a href="/tech-map/extensions/configuration-management-and-iac/"><strong>구성 관리 자동화·IaC</strong><span>실행 단위와 전달 경로가 늘어날 때, 원하는 인프라 상태를 어떻게 재현·검토할지 읽는다. →</span></a></li>
+              </ul>
+            </section>
+          </div>
+        </div>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <p>© 2026 kedzie.dev</p>
+      <a href="/index.xml">RSS</a>
+    </footer>
+    <section id="search-panel" class="search-panel" hidden role="dialog" aria-modal="true" aria-labelledby="search-title">
+      <div class="search-box">
+        <div class="search-head">
+          <h2 id="search-title">검색</h2>
+          <button class="icon-button search-close" type="button" aria-label="검색 닫기">×</button>
+        </div>
+        <label class="search-field">
+          <span>키워드</span>
+          <input id="search-query" type="search" autocomplete="off" placeholder="GitOps, HPA, TargetGroupBinding">
+        </label>
+        <div id="search-results" class="search-results" role="list" aria-live="polite"></div>
+      </div>
+    </section>
+    <script defer src="/js/atlas.js"></script>  </body>
+</html>

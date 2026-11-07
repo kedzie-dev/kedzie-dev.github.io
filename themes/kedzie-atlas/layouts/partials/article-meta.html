@@ -1,7 +1,0 @@
-<div class="article-meta">
-  {{ if not .Date.IsZero }}<time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006.01.02" }}</time>{{ end }}
-  {{ if site.Params.article.showReadingTime }}<span>{{ .ReadingTime }}분 읽기</span>{{ end }}
-  {{ with .Params.landmarks }}
-    <span>{{ partial "landmark-labels.html" . }}</span>
-  {{ end }}
-</div>

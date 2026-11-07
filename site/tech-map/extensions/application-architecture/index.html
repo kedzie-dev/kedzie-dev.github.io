@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>애플리케이션 아키텍처 | kedzie.dev</title>
+    <meta name="description" content="모놀리스·계층형·마이크로서비스는 시대의 필연적 단계가 아니라, 책임·배포·통신 경계를 어떤 비용으로 나눌지에 대한 선택이다.">
+    <link rel="canonical" href="https://kedzie-dev.github.io/tech-map/extensions/application-architecture/">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/atlas.css">
+    <link rel="stylesheet" href="/css/features.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="site-brand" href="/">kedzie.dev</a>
+        <nav class="site-nav" aria-label="주요 메뉴">
+          <ul>
+            <li><a href="/notes/">글</a></li>
+            <li><a href="/cases/">사례</a></li>
+            <li><a href="/labs/">실습</a></li>
+            <li><a href="/tech-map/" aria-current="page">기술 지도</a></li>
+          </ul>
+        </nav>
+        <button class="search-toggle" type="button" aria-label="검색 열기" aria-haspopup="dialog" aria-controls="search-panel">검색</button>
+      </div>
+    </header>
+    <main id="main-content" tabindex="-1">
+      <article class="tem-extension-page">
+        <div class="tem-extension-layout">
+          <div class="tem-extension-main">
+            <nav class="tem-extension-breadcrumb" aria-label="현재 위치">
+              <a href="/tech-map/">기술 진화 지도</a>
+              <span aria-hidden="true">/</span>
+              <a href="/tech-map/?node=cgi">동적 서버 처리</a>
+              <span aria-hidden="true">/</span>
+              <span aria-current="page">애플리케이션 아키텍처</span>
+            </nav>
+            <header class="tem-extension-hero">
+              <p>EXPANSION</p>
+              <h1>애플리케이션 아키텍처</h1>
+              <p>모놀리스·계층형·마이크로서비스는 시대의 필연적 단계가 아니라, 책임·배포·통신 경계를 어떤 비용으로 나눌지에 대한 선택이다.</p>
+            </header>
+            <div class="tem-extension-content article-content">
+              <h2 id="배포-단위와-책임-경계는-다르다">배포 단위와 책임 경계는 다르다</h2>
+              <p>모놀리스는 하나의 배포 단위 안에 기능을 함께 담는 방식이다. 작은 팀이나 명확한 제품 경계에서는 전달 경로가 단순해질 수 있다. 그렇다고 내부 모듈 경계까지 없애야 하는 것은 아니다.</p>
+              <p>계층형 애플리케이션은 표현, 업무, 데이터 접근처럼 책임을 나누는 언어를 제공한다. 논리 계층이 항상 별도 서버 티어를 뜻하지는 않는다. 물리 분리는 격리와 독립 확장을 줄 수 있지만, 네트워크 지연과 장애 전파라는 비용도 만든다.</p>
+              <h2 id="마이크로서비스는-복잡성을-없애지-않는다">마이크로서비스는 복잡성을 없애지 않는다</h2>
+              <p>마이크로서비스는 기능별로 독립 배포·확장할 수 있는 경계를 만들 수 있다. 대신 이전에 프로세스 안에서 끝나던 호출이 네트워크 계약이 되고, 관측·인증·재시도·데이터 정합성의 책임이 늘어난다.</p>
+              <p>따라서 서비스 분해는 팀의 변경 속도, 업무 경계, 통신 빈도, 장애 격리 요구가 실제로 있는지부터 판단한다. 도구나 인프라를 먼저 고르고 아키텍처를 맞추는 순서는 비용만 키우기 쉽다.</p>
+              <h2 id="운영에서-확인할-질문">운영에서 확인할 질문</h2>
+              <ul>
+                <li>독립 배포가 필요한 기능 경계와 단지 코드 정리가 필요한 모듈 경계를 구분했는가?</li>
+                <li>통신 실패·지연·계약 변경을 어느 팀과 어느 계층이 책임지는가?</li>
+                <li>데이터의 소유·변경 경계가 서비스 경계와 맞는가?</li>
+                <li>배포 단위를 나누어 얻는 이점이 관측·보안·운영 복잡성보다 큰가?</li>
+              </ul>
+              <h2 id="출처">출처</h2>
+              <ul>
+                <li><a href="https://learn.microsoft.com/en-us/azure/architecture/guide/architecture-styles/">Azure Architecture Center: Architecture Styles</a></li>
+                <li><a href="https://learn.microsoft.com/en-us/azure/architecture/guide/architecture-styles/n-tier">Azure Architecture Center: N-tier Architecture Style</a></li>
+              </ul>
+            </div>
+            <section class="tem-next-extensions" aria-labelledby="tem-next-title">
+              <p>CONTINUE EXPLORING</p>
+              <h2 id="tem-next-title">다음으로 읽기</h2>
+              <ul>
+                <li><a href="/tech-map/extensions/load-balancing/"><strong>로드 밸런싱</strong><span>애플리케이션을 여러 실행 단위로 나눌 때 트래픽·상태·장애를 어떻게 분산하는지 읽는다. →</span></a></li>
+              </ul>
+            </section>
+          </div>
+        </div>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <p>© 2026 kedzie.dev</p>
+      <a href="/index.xml">RSS</a>
+    </footer>
+    <section id="search-panel" class="search-panel" hidden role="dialog" aria-modal="true" aria-labelledby="search-title">
+      <div class="search-box">
+        <div class="search-head">
+          <h2 id="search-title">검색</h2>
+          <button class="icon-button search-close" type="button" aria-label="검색 닫기">×</button>
+        </div>
+        <label class="search-field">
+          <span>키워드</span>
+          <input id="search-query" type="search" autocomplete="off" placeholder="GitOps, HPA, TargetGroupBinding">
+        </label>
+        <div id="search-results" class="search-results" role="list" aria-live="polite"></div>
+      </div>
+    </section>
+    <script defer src="/js/atlas.js"></script>  </body>
+</html>

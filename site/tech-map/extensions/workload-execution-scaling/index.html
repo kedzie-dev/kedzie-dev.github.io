@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>워크로드 실행·확장 | kedzie.dev</title>
+    <meta name="description" content="controller·resource request·metric은 장애와 부하 변화 속에서 원하는 실행 수를 유지하기 위한 하나의 운영 계약이다.">
+    <link rel="canonical" href="https://kedzie-dev.github.io/tech-map/extensions/workload-execution-scaling/">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/atlas.css">
+    <link rel="stylesheet" href="/css/features.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="site-brand" href="/">kedzie.dev</a>
+        <nav class="site-nav" aria-label="주요 메뉴">
+          <ul>
+            <li><a href="/notes/">글</a></li>
+            <li><a href="/cases/">사례</a></li>
+            <li><a href="/labs/">실습</a></li>
+            <li><a href="/tech-map/" aria-current="page">기술 지도</a></li>
+          </ul>
+        </nav>
+        <button class="search-toggle" type="button" aria-label="검색 열기" aria-haspopup="dialog" aria-controls="search-panel">검색</button>
+      </div>
+    </header>
+    <main id="main-content" tabindex="-1">
+      <article class="tem-extension-page">
+        <div class="tem-extension-layout">
+          <div class="tem-extension-main">
+            <nav class="tem-extension-breadcrumb" aria-label="현재 위치">
+              <a href="/tech-map/">기술 진화 지도</a>
+              <span aria-hidden="true">/</span>
+              <a href="/tech-map/?node=kubernetes">컨테이너 오케스트레이션</a>
+              <span aria-hidden="true">/</span>
+              <span aria-current="page">워크로드 실행·확장</span>
+            </nav>
+            <header class="tem-extension-hero">
+              <p>EXPANSION</p>
+              <h1>워크로드 실행·확장</h1>
+              <p>controller·resource request·metric은 장애와 부하 변화 속에서 원하는 실행 수를 유지하기 위한 하나의 운영 계약이다.</p>
+            </header>
+            <div class="tem-extension-content article-content">
+              <h2 id="실행-수를-유지한다는-것은-pod-하나를-살리는-일이-아니다">실행 수를 유지한다는 것은 Pod 하나를 살리는 일이 아니다</h2>
+              <p>컨테이너를 실행하는 것만으로는 장애와 부하 변화에 대응할 수 없다. 노드 장애나 축출로 Pod가 사라지고, 요청량에 따라 필요한 처리량도 바뀐다. 이때 중요한 질문은 Pod 하나가 살아 있는지가 아니라, <strong>원하는 수의 실행 단위가 필요한 시점에 실제로 유지되는가</strong>다.</p>
+              <p>Kubernetes의 controller는 선언된 원하는 상태와 실제 상태의 차이를 줄인다. Deployment·ReplicaSet은 복제 수를 유지하고, HPA는 관측한 metric에 따라 확장 가능한 워크로드의 원하는 복제 수를 조정한다. 둘은 Pod 하나의 수명을 보장하는 기능이 아니라, 교체 가능한 Pod 집합의 실행 수를 관리하는 방식이다.</p>
+              <h2 id="자동-복구와-자동-확장은-서로-다른-계약을-가진다">자동 복구와 자동 확장은 서로 다른 계약을 가진다</h2>
+              <p>Pod는 수명 중 한 번만 노드에 스케줄된다. 노드 장애나 축출 뒤 같은 Pod가 다른 노드로 이동하는 것이 아니라, controller가 새 Pod를 만들어 원하는 복제 수를 맞춘다. 그래서 장애를 분석할 때는 container 재시작, Pod 교체, 새 Pod 스케줄링을 같은 사건으로 묶지 않아야 한다.</p>
+              <p>HPA도 Pod를 직접 조작하지 않는다. 대상 워크로드의 원하는 복제 수를 주기적으로 바꾸며, CPU·memory utilization은 request 대비 사용률로 계산한다. 관련 container에 request가 없으면 해당 metric으로 확장 판단을 할 수 없다. Metrics Server 같은 metric API의 가용성도 HPA가 기대하는 전제다.</p>
+              <h2 id="빠른-반응과-안정적인-조정-사이에서-판단한다">빠른 반응과 안정적인 조정 사이에서 판단한다</h2>
+              <p>HPA 제어 루프는 연속적이지 않으며, 허용오차·metric 누락 처리·안정화 같은 보정이 있다. 목표를 넘는 즉시 복제 수를 바꾸도록 기대하면 일시적 부하나 관측 지연에 흔들릴 수 있다. 반대로 보정을 크게 두면 실제 수요를 따라가지 못할 수 있다.</p>
+              <p>워크로드의 요청 특성, 초기화 시간, 허용 가능한 지연을 함께 봐야 한다. 복제 수를 늘린 뒤 병목이 Pod CPU가 아니라 DB 연결, 외부 API quota, 메시지 처리량으로 옮겨갈 수도 있다. 인프라는 애플리케이션의 서비스 경계와 자원 요구를 바탕으로 request·limit·HPA metric·최소·최대 복제 수를 정해야 한다.</p>
+              <h2 id="운영에서-확인할-질문">운영에서 확인할 질문</h2>
+              <ul>
+                <li>controller가 원하는 복제 수와 실제 ready replica 수가 계속 어긋나는가?</li>
+                <li>utilization HPA에 필요한 resource request와 metric API가 모두 준비됐는가?</li>
+                <li>확장 뒤 병목이 DB·외부 의존성·큐 처리량으로 이동하지 않는가?</li>
+                <li>scale 동작이 사용자 체감 신뢰성 목표와 변경 위험에 어떤 영향을 주는가?</li>
+              </ul>
+              <h2 id="출처">출처</h2>
+              <ul>
+                <li><a href="https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-lifetime">Kubernetes: Pod lifetime</a></li>
+                <li><a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/">Kubernetes: Deployment</a></li>
+                <li><a href="https://kubernetes.io/docs/concepts/workloads/autoscaling/horizontal-pod-autoscale/">Kubernetes: Horizontal Pod Autoscaling</a></li>
+                <li><a href="https://kubernetes.io/docs/concepts/workloads/autoscaling/horizontal-pod-autoscale/#algorithm-details">Kubernetes: HPA algorithm details</a></li>
+              </ul>
+            </div>
+            <section class="tem-next-extensions" aria-labelledby="tem-next-title">
+              <p>CONTINUE EXPLORING</p>
+              <h2 id="tem-next-title">다음으로 읽기</h2>
+              <ul>
+                <li><a href="/tech-map/extensions/slo-and-error-budget/"><strong>SLO·오류 예산</strong><span>사용자가 체감하는 신뢰성 목표를 기준으로 확장과 변경 위험을 어떻게 조정할지 읽는다. →</span></a></li>
+              </ul>
+            </section>
+          </div>
+        </div>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <p>© 2026 kedzie.dev</p>
+      <a href="/index.xml">RSS</a>
+    </footer>
+    <section id="search-panel" class="search-panel" hidden role="dialog" aria-modal="true" aria-labelledby="search-title">
+      <div class="search-box">
+        <div class="search-head">
+          <h2 id="search-title">검색</h2>
+          <button class="icon-button search-close" type="button" aria-label="검색 닫기">×</button>
+        </div>
+        <label class="search-field">
+          <span>키워드</span>
+          <input id="search-query" type="search" autocomplete="off" placeholder="GitOps, HPA, TargetGroupBinding">
+        </label>
+        <div id="search-results" class="search-results" role="list" aria-live="polite"></div>
+      </div>
+    </section>
+    <script defer src="/js/atlas.js"></script>  </body>
+</html>

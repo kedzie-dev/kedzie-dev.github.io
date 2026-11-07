@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>구성 관리 자동화·IaC | kedzie.dev</title>
+    <meta name="description" content="인프라 변경을 콘솔의 기억에 맡기지 않고, 원하는 상태를 선언·검토·재현해 변경 위험과 드리프트를 다룬다.">
+    <link rel="canonical" href="https://kedzie-dev.github.io/tech-map/extensions/configuration-management-and-iac/">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/atlas.css">
+    <link rel="stylesheet" href="/css/features.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="site-brand" href="/">kedzie.dev</a>
+        <nav class="site-nav" aria-label="주요 메뉴">
+          <ul>
+            <li><a href="/notes/">글</a></li>
+            <li><a href="/cases/">사례</a></li>
+            <li><a href="/labs/">실습</a></li>
+            <li><a href="/tech-map/" aria-current="page">기술 지도</a></li>
+          </ul>
+        </nav>
+        <button class="search-toggle" type="button" aria-label="검색 열기" aria-haspopup="dialog" aria-controls="search-panel">검색</button>
+      </div>
+    </header>
+    <main id="main-content" tabindex="-1">
+      <article class="tem-extension-page">
+        <div class="tem-extension-layout">
+          <div class="tem-extension-main">
+            <nav class="tem-extension-breadcrumb" aria-label="현재 위치">
+              <a href="/tech-map/">기술 진화 지도</a>
+              <span aria-hidden="true">/</span>
+              <a href="/tech-map/?node=iaas">IaaS</a>
+              <span aria-hidden="true">/</span>
+              <span aria-current="page">구성 관리 자동화·IaC</span>
+            </nav>
+            <header class="tem-extension-hero">
+              <p>EXPANSION</p>
+              <h1>구성 관리 자동화·IaC</h1>
+              <p>인프라 변경을 콘솔의 기억에 맡기지 않고, 원하는 상태를 선언·검토·재현해 변경 위험과 드리프트를 다룬다.</p>
+            </header>
+            <div class="tem-extension-content article-content">
+              <h2 id="구성-관리와-iac는-같은-문제를-다른-층에서-다룬다">구성 관리와 IaC는 같은 문제를 다른 층에서 다룬다</h2>
+              <p>구성 관리 자동화는 서버 안의 패키지, 설정 파일, 실행 상태를 원하는 상태로 맞추는 데 초점을 둔다. IaC는 네트워크, 컴퓨팅, 권한, 저장소처럼 인프라 리소스를 코드로 선언하고 변경 이력을 남긴다.</p>
+              <p>둘 다 수동 변경에서 생기는 환경 차이와 재현 불가능성을 줄인다. 하지만 선언 파일이 있다는 사실만으로 실제 상태가 항상 맞는 것은 아니다. 적용 실패, 권한 차이, 콘솔의 긴급 변경은 선언과 실제의 차이인 드리프트를 만든다.</p>
+              <h2 id="상태와-권한은-운영-대상이다">상태와 권한은 운영 대상이다</h2>
+              <p>IaC 도구가 참조하는 상태는 민감한 구성과 리소스 식별자를 담을 수 있다. 상태 접근 권한, 잠금, 백업, 변경 검토를 설계하지 않으면 자동화가 더 큰 변경 범위를 빠르게 만들 수 있다.</p>
+              <p>변경 전에는 계획을 검토하고, 적용 뒤에는 실제 상태와 서비스 지표를 확인한다. 인프라 코드도 애플리케이션 아키텍처의 서비스 경계·통신 방식·확장 요구를 뒷받침해야 한다.</p>
+              <h2 id="운영에서-확인할-질문">운영에서 확인할 질문</h2>
+              <ul>
+                <li>선언한 원하는 상태와 실제 상태의 차이를 어떻게 감지·복구하는가?</li>
+                <li>상태 파일과 비밀값에 접근할 수 있는 주체를 최소화했는가?</li>
+                <li>변경 계획을 검토하고 영향 범위와 복구 경로를 확인하는가?</li>
+                <li>인프라 변경이 애플리케이션의 배포·통신·확장 경계와 맞는가?</li>
+              </ul>
+              <h2 id="출처">출처</h2>
+              <ul>
+                <li><a href="https://developer.hashicorp.com/terraform/intro">Terraform: Infrastructure as Code</a></li>
+                <li><a href="https://www.puppet.com/docs/puppet/latest/lang_summary.html">Puppet: Declarative Language</a></li>
+              </ul>
+            </div>
+            <section class="tem-next-extensions" aria-labelledby="tem-next-title">
+              <p>CONTINUE EXPLORING</p>
+              <h2 id="tem-next-title">다음으로 읽기</h2>
+              <ul>
+                <li><a href="/tech-map/extensions/ci-cd/"><strong>CI/CD</strong><span>인프라 변경을 포함한 모든 변경을 검증하고 복구 가능한 전달 흐름으로 만드는 방법을 읽는다. →</span></a></li>
+              </ul>
+            </section>
+          </div>
+        </div>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <p>© 2026 kedzie.dev</p>
+      <a href="/index.xml">RSS</a>
+    </footer>
+    <section id="search-panel" class="search-panel" hidden role="dialog" aria-modal="true" aria-labelledby="search-title">
+      <div class="search-box">
+        <div class="search-head">
+          <h2 id="search-title">검색</h2>
+          <button class="icon-button search-close" type="button" aria-label="검색 닫기">×</button>
+        </div>
+        <label class="search-field">
+          <span>키워드</span>
+          <input id="search-query" type="search" autocomplete="off" placeholder="GitOps, HPA, TargetGroupBinding">
+        </label>
+        <div id="search-results" class="search-results" role="list" aria-live="polite"></div>
+      </div>
+    </section>
+    <script defer src="/js/atlas.js"></script>  </body>
+</html>

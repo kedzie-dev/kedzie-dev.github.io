@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>운영 노트 | kedzie.dev</title>
+    <link>https://kedzie-dev.github.io/notes/</link>
+    <description>Kubernetes, GitOps, SRE 운영 기록</description>
+    <language>ko</language>
+    <atom:link href="https://kedzie-dev.github.io/notes/index.xml" rel="self" type="application/rss+xml"/>
+
+      <item>
+        <title>공용 GitLab Runner를 Deployment 하나로 보면 놓치는 것</title>
+        <link>https://kedzie-dev.github.io/notes/kubernetes-runner-isolation/</link>
+        <pubDate>Sat, 01 Aug 2026 00:00:00 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/notes/kubernetes-runner-isolation/</guid>
+        <description>Runner manager와 Job Pod의 자원, 권한, cache 경계를 나눠 공용 실행 환경의 책임을 정리합니다.</description>
+      </item>
+
+      <item>
+        <title>아키텍처를 고르기 전에 팀의 책임 경계부터 봐야 하는 이유</title>
+        <link>https://kedzie-dev.github.io/notes/organizational-fit-architecture/</link>
+        <pubDate>Sat, 01 Aug 2026 00:00:00 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/notes/organizational-fit-architecture/</guid>
+        <description>아키텍처 선택을 기술 선호가 아니라 팀의 책임 경계와 운영 피드백 루프로 판단합니다.</description>
+      </item>
+
+      <item>
+        <title>TargetGroupBinding의 포트는 왜 Service·컨테이너와 다를까</title>
+        <link>https://kedzie-dev.github.io/notes/targetgroupbinding-traffic-contract/</link>
+        <pubDate>Mon, 27 Jul 2026 00:00:00 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/notes/targetgroupbinding-traffic-contract/</guid>
+        <description>TargetGroupBinding, Service, Pod 포트가 만드는 외부 트래픽 계약과 확인 순서를 정리합니다.</description>
+      </item>
+
+      <item>
+        <title>GitOps 배포 버전은 누가 결정할까 — 커밋 SHA를 남긴 이유</title>
+        <link>https://kedzie-dev.github.io/notes/commit-sha-deployment-contract/</link>
+        <pubDate>Thu, 23 Jul 2026 00:00:00 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/notes/commit-sha-deployment-contract/</guid>
+        <description>이미지 태그 대신 불변 커밋 SHA를 배포 계약으로 남긴 이유와 확인 지점을 다룹니다.</description>
+      </item>
+
+      <item>
+        <title>Argo CD ApplicationSet 자동 이름 생성에서 경로를 확인해야 하는 이유</title>
+        <link>https://kedzie-dev.github.io/notes/argocd-applicationset-naming/</link>
+        <pubDate>Wed, 22 Jul 2026 00:00:00 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/notes/argocd-applicationset-naming/</guid>
+        <description>ApplicationSet 이름 규칙에서 생길 수 있는 충돌과 재발 방지 검증 방법을 정리합니다.</description>
+      </item>
+
+      <item>
+        <title>Argo CD GitOps에서 애플리케이션 생명주기를 설계하는 법</title>
+        <link>https://kedzie-dev.github.io/notes/argocd-application-lifecycle-design/</link>
+        <pubDate>Wed, 22 Jul 2026 00:00:00 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/notes/argocd-application-lifecycle-design/</guid>
+        <description>ApplicationSet과 application controller의 책임을 나눠 생성, 갱신, drift 복구, 삭제를 설계합니다.</description>
+      </item>
+
+      <item>
+        <title>Git에서 Argo CD가 참조하는 매니페스트 디렉터리를 삭제하면 어디까지 삭제되는가</title>
+        <link>https://kedzie-dev.github.io/notes/argocd-application-lifecycle/</link>
+        <pubDate>Wed, 22 Jul 2026 00:00:00 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/notes/argocd-application-lifecycle/</guid>
+        <description>Git 경로 삭제가 ApplicationSet, Application, child resource 삭제로 이어지는 조건을 분리해 확인합니다.</description>
+      </item>
+
+      <item>
+        <title>ECS on EC2는 정말 Fargate보다 저렴했을까 — 고밀도 배치에서 놓친 호스트 시스템 메모리</title>
+        <link>https://kedzie-dev.github.io/notes/jvm-memory-usage-not-load/</link>
+        <pubDate>Sun, 19 Jul 2026 00:00:00 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/notes/jvm-memory-usage-not-load/</guid>
+        <description>ECS on EC2 고밀도 배치에서 시스템 메모리와 실패 예산을 비용 판단에 포함해야 하는 이유를 정리합니다.</description>
+      </item>
+
+      <item>
+        <title>Hello World</title>
+        <link>https://kedzie-dev.github.io/notes/hello-world/</link>
+        <pubDate>Fri, 17 Jul 2026 18:41:33 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/notes/hello-world/</guid>
+        <description>블로그 시작 기록.</description>
+      </item>
+
+  </channel>
+</rss>

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Argo CD 애플리케이션 수명 주기 및 controller 경계 | kedzie.dev</title>
+    <meta name="description" content="ApplicationSet과 App-of-Apps에서 controller별 관리 범위와 확인 지점을 분리한 사례.">
+    <link rel="canonical" href="https://kedzie-dev.github.io/cases/argocd-controller-boundary/">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/atlas.css">
+    <link rel="stylesheet" href="/css/features.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="site-brand" href="/">kedzie.dev</a>
+        <nav class="site-nav" aria-label="주요 메뉴">
+          <ul>
+            <li><a href="/notes/">글</a></li>
+            <li><a href="/cases/" aria-current="page">사례</a></li>
+            <li><a href="/labs/">실습</a></li>
+            <li><a href="/tech-map/">기술 지도</a></li>
+          </ul>
+        </nav>
+        <button class="search-toggle" type="button" aria-label="검색 열기" aria-haspopup="dialog" aria-controls="search-panel">검색</button>
+      </div>
+    </header>
+    <main id="main-content" tabindex="-1">
+      <article class="article-shell">
+        <header class="article-header">
+          <nav class="breadcrumbs" aria-label="현재 위치">
+            <a href="/">홈</a>
+            <span aria-hidden="true">/</span><a href="/cases/">대표 운영 사례</a>
+            <span aria-hidden="true">/</span><span aria-current="page">Argo CD 애플리케이션 수명 주기 및 controller 경계</span>
+          </nav>
+          <p class="eyebrow">CASES</p>
+          <h1>Argo CD 애플리케이션 수명 주기 및 controller 경계</h1>
+          <div class="article-meta">
+            <time datetime="2026-07-24">2026.07.24</time>
+            <span>1분 읽기</span>
+            <span>Argo CD, GitOps, Kubernetes</span>
+          </div>
+          <p class="article-summary">ApplicationSet과 App-of-Apps에서 controller별 관리 범위와 확인 지점을 분리한 사례.</p>
+        </header>
+        <div class="article-layout has-aside">
+          <div class="article-content">
+            <p>ApplicationSet과 App-of-Apps를 함께 쓸 때 Git 변경이 어떤 controller를 거쳐 배포 리소스까지 이어지는지 정리했다. 생성, 갱신, drift 복구, 삭제에 서로 다른 설정이 관여하는 이유도 구분했다.</p>
+            <h2 id="문제">문제</h2>
+            <p>Git 변경 뒤 새 서비스 생성, 기존 서비스 갱신, 삭제 범위의 확인 지점이 섞였다.</p>
+            <h2 id="판단">판단</h2>
+            <p>ApplicationSet의 generated <code>Application</code> 관리와 application controller의 workload sync를 분리했다. <code>prune</code>, Application 삭제, 리소스 보존 정책을 같은 스위치로 보지 않았다.</p>
+            <h2 id="결과">결과</h2>
+            <p>생성, 갱신, 삭제마다 확인할 controller와 정책을 좁혔다. 삭제 전에는 비운영 환경 검증과 변경 리뷰가 필요하다는 기준도 남겼다.</p>
+            <h2 id="evidence">Evidence</h2>
+            <ul>
+              <li><a href="/notes/argocd-application-lifecycle-design/">Argo CD GitOps에서 애플리케이션 생명주기를 설계하는 법</a></li>
+              <li><a href="/notes/argocd-application-lifecycle/">Git에서 Argo CD가 참조하는 매니페스트 디렉터리를 삭제하면 어디까지 삭제되는가</a></li>
+            </ul>
+          </div>
+          <aside class="article-aside">
+            <aside class="toc-panel" aria-labelledby="toc-title">
+              <h2 id="toc-title">목차</h2>
+              <nav id="TableOfContents">
+                <ul>
+                  <li><a href="#문제">문제</a></li>
+                  <li><a href="#판단">판단</a></li>
+                  <li><a href="#결과">결과</a></li>
+                  <li><a href="#evidence">Evidence</a></li>
+                </ul>
+              </nav>
+            </aside>
+          </aside>
+        </div>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <p>© 2026 kedzie.dev</p>
+      <a href="/index.xml">RSS</a>
+    </footer>
+    <section id="search-panel" class="search-panel" hidden role="dialog" aria-modal="true" aria-labelledby="search-title">
+      <div class="search-box">
+        <div class="search-head">
+          <h2 id="search-title">검색</h2>
+          <button class="icon-button search-close" type="button" aria-label="검색 닫기">×</button>
+        </div>
+        <label class="search-field">
+          <span>키워드</span>
+          <input id="search-query" type="search" autocomplete="off" placeholder="GitOps, HPA, TargetGroupBinding">
+        </label>
+        <div id="search-results" class="search-results" role="list" aria-live="polite"></div>
+      </div>
+    </section>
+    <script defer src="/js/atlas.js"></script>  </body>
+</html>

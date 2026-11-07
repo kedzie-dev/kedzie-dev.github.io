@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hello World | kedzie.dev</title>
+    <meta name="description" content="블로그 시작 기록.">
+    <link rel="canonical" href="https://kedzie-dev.github.io/notes/hello-world/">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/atlas.css">
+    <link rel="stylesheet" href="/css/features.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="site-brand" href="/">kedzie.dev</a>
+        <nav class="site-nav" aria-label="주요 메뉴">
+          <ul>
+            <li><a href="/notes/" aria-current="page">글</a></li>
+            <li><a href="/cases/">사례</a></li>
+            <li><a href="/labs/">실습</a></li>
+            <li><a href="/tech-map/">기술 지도</a></li>
+          </ul>
+        </nav>
+        <button class="search-toggle" type="button" aria-label="검색 열기" aria-haspopup="dialog" aria-controls="search-panel">검색</button>
+      </div>
+    </header>
+    <main id="main-content" tabindex="-1">
+      <article class="article-shell">
+        <header class="article-header">
+          <nav class="breadcrumbs" aria-label="현재 위치">
+            <a href="/">홈</a>
+            <span aria-hidden="true">/</span><a href="/notes/">운영 노트</a>
+            <span aria-hidden="true">/</span><span aria-current="page">Hello World</span>
+          </nav>
+          <p class="eyebrow">NOTES</p>
+          <h1>Hello World</h1>
+          <div class="article-meta">
+            <time datetime="2026-07-17">2026.07.17</time>
+            <span>1분 읽기</span>
+            <span>GitLab Runner</span>
+          </div>
+          <p class="article-summary">블로그 시작 기록.</p>
+        </header>
+        <div class="article-layout">
+          <div class="article-content">
+            <p>블로그 첫 글. SA/DevOps 실무 경험(장애 대응, IaC, CI/CD, 마이그레이션)을 기록할 예정.</p>
+          </div>
+        </div>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <p>© 2026 kedzie.dev</p>
+      <a href="/index.xml">RSS</a>
+    </footer>
+    <section id="search-panel" class="search-panel" hidden role="dialog" aria-modal="true" aria-labelledby="search-title">
+      <div class="search-box">
+        <div class="search-head">
+          <h2 id="search-title">검색</h2>
+          <button class="icon-button search-close" type="button" aria-label="검색 닫기">×</button>
+        </div>
+        <label class="search-field">
+          <span>키워드</span>
+          <input id="search-query" type="search" autocomplete="off" placeholder="GitOps, HPA, TargetGroupBinding">
+        </label>
+        <div id="search-results" class="search-results" role="list" aria-live="polite"></div>
+      </div>
+    </section>
+    <script defer src="/js/atlas.js"></script>  </body>
+</html>

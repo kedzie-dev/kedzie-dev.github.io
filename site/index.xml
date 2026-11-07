@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>kedzie.dev | kedzie.dev</title>
+    <link>https://kedzie-dev.github.io/</link>
+    <description>Kubernetes, GitOps, SRE 운영 기록</description>
+    <language>ko</language>
+    <atom:link href="https://kedzie-dev.github.io/index.xml" rel="self" type="application/rss+xml"/>
+
+      <item>
+        <title>운영 노트</title>
+        <link>https://kedzie-dev.github.io/notes/</link>
+        <pubDate>Sat, 01 Aug 2026 00:00:00 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/notes/</guid>
+        <description>운영 조건, 기술 선택, 검증 기준을 기록한 노트.</description>
+      </item>
+
+      <item>
+        <title>운영 실습</title>
+        <link>https://kedzie-dev.github.io/labs/</link>
+        <pubDate>Mon, 27 Jul 2026 00:00:00 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/labs/</guid>
+        <description>운영 신호를 먼저 확인하고 대응 범위와 영향을 비교하는 인터랙티브 시나리오.</description>
+      </item>
+
+      <item>
+        <title>기술 진화 지도</title>
+        <link>https://kedzie-dev.github.io/tech-map/</link>
+        <pubDate>Sat, 25 Jul 2026 00:00:00 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/tech-map/</guid>
+        <description>웹의 탄생부터 AI 에이전트까지, 시간축과 인과 관계로 기술 선택의 흐름을 읽습니다.</description>
+      </item>
+
+      <item>
+        <title>대표 운영 사례</title>
+        <link>https://kedzie-dev.github.io/cases/</link>
+        <pubDate>Fri, 24 Jul 2026 00:00:00 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/cases/</guid>
+        <description>운영 문제를 좁힌 과정, 설계 기준, 검증 범위를 기록한 사례입니다.</description>
+      </item>
+
+  </channel>
+</rss>

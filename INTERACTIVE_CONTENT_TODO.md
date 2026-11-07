@@ -6,8 +6,8 @@
 
 - 범위: 외부 클라우드·계정에 연결하지 않는 브라우저 내 시뮬레이션
 - 우선순위: 재미보다 현실적인 판단 근거와 명확한 디브리핑
-- 구현: Hugo 콘텐츠 + `static/` JavaScript + `assets/css/custom.css`를 우선 사용
-- 품질: 모바일 확인, 키보드 조작, 상태 변화의 `aria-live` 안내, Hugo 프로덕션 빌드 필수
+- 구현: `site/`의 HTML·JavaScript와 `site/css/features.css`를 우선 사용
+- 품질: 모바일 확인, 키보드 조작, 상태 변화의 `aria-live` 안내, `python3 scripts/check-site.py` 검증 필수
 - 배포: 항목 하나가 끝날 때마다 별도 커밋·배포
 
 ## 진행 현황

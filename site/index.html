@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>kedzie.dev</title>
+    <meta name="description" content="Kubernetes, GitOps, SRE 운영 기록">
+    <link rel="canonical" href="https://kedzie-dev.github.io/">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="alternate" type="application/rss+xml" href="https://kedzie-dev.github.io/index.xml" title="kedzie.dev">
+    <link rel="stylesheet" href="/css/atlas.css">
+    <link rel="stylesheet" href="/css/features.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="site-brand" href="/">kedzie.dev</a>
+        <nav class="site-nav" aria-label="주요 메뉴">
+          <ul>
+            <li><a href="/notes/">글</a></li>
+            <li><a href="/cases/">사례</a></li>
+            <li><a href="/labs/">실습</a></li>
+            <li><a href="/tech-map/">기술 지도</a></li>
+          </ul>
+        </nav>
+        <button class="search-toggle" type="button" aria-label="검색 열기" aria-haspopup="dialog" aria-controls="search-panel">검색</button>
+      </div>
+    </header>
+    <main id="main-content" tabindex="-1">
+      <div class="page home-page">
+        <header class="home-intro">
+          <h1>기술을 운영하며 배운 것들</h1>
+          <p>Kubernetes, GitOps, SRE를 다루며 확인한 동작과 선택을 기록합니다. 필요한 글을 바로 찾고 읽을 수 있도록 정리했습니다.</p>
+        </header>
+        <section aria-labelledby="latest-title">
+          <div class="section-heading">
+            <h2 id="latest-title">최근 글</h2>
+            <a href="/notes/">모든 노트 보기 →</a>
+          </div>
+          <ul class="entry-list">
+            <li class="entry">
+              <h3><a href="/notes/kubernetes-runner-isolation/">공용 GitLab Runner를 Deployment 하나로 보면 놓치는 것</a></h3>
+              <div class="article-meta">
+                <time datetime="2026-08-01">2026.08.01</time>
+                <span>5분 읽기</span>
+                <span>Kubernetes, Docker, Jenkins</span>
+              </div>
+              <p>Runner manager와 Job Pod의 자원, 권한, cache 경계를 나눠 공용 실행 환경의 책임을 정리합니다.</p>
+            </li>
+            <li class="entry">
+              <h3><a href="/notes/organizational-fit-architecture/">아키텍처를 고르기 전에 팀의 책임 경계부터 봐야 하는 이유</a></h3>
+              <div class="article-meta">
+                <time datetime="2026-08-01">2026.08.01</time>
+                <span>4분 읽기</span>
+                <span>GitLab Runner</span>
+              </div>
+              <p>아키텍처 선택을 기술 선호가 아니라 팀의 책임 경계와 운영 피드백 루프로 판단합니다.</p>
+            </li>
+            <li class="entry">
+              <h3><a href="/notes/targetgroupbinding-traffic-contract/">TargetGroupBinding의 포트는 왜 Service·컨테이너와 다를까</a></h3>
+              <div class="article-meta">
+                <time datetime="2026-07-27">2026.07.27</time>
+                <span>6분 읽기</span>
+                <span>Kubernetes</span>
+              </div>
+              <p>TargetGroupBinding, Service, Pod 포트가 만드는 외부 트래픽 계약과 확인 순서를 정리합니다.</p>
+            </li>
+            <li class="entry">
+              <h3><a href="/notes/commit-sha-deployment-contract/">GitOps 배포 버전은 누가 결정할까 — 커밋 SHA를 남긴 이유</a></h3>
+              <div class="article-meta">
+                <time datetime="2026-07-23">2026.07.23</time>
+                <span>6분 읽기</span>
+                <span>GitOps, Jenkins, Argo CD</span>
+              </div>
+              <p>이미지 태그 대신 불변 커밋 SHA를 배포 계약으로 남긴 이유와 확인 지점을 다룹니다.</p>
+            </li>
+            <li class="entry">
+              <h3><a href="/notes/argocd-applicationset-naming/">Argo CD ApplicationSet 자동 이름 생성에서 경로를 확인해야 하는 이유</a></h3>
+              <div class="article-meta">
+                <time datetime="2026-07-22">2026.07.22</time>
+                <span>6분 읽기</span>
+                <span>Argo CD, GitOps</span>
+              </div>
+              <p>ApplicationSet 이름 규칙에서 생길 수 있는 충돌과 재발 방지 검증 방법을 정리합니다.</p>
+            </li>
+            <li class="entry">
+              <h3><a href="/notes/argocd-application-lifecycle-design/">Argo CD GitOps에서 애플리케이션 생명주기를 설계하는 법</a></h3>
+              <div class="article-meta">
+                <time datetime="2026-07-22">2026.07.22</time>
+                <span>6분 읽기</span>
+                <span>Argo CD, GitOps, Kubernetes</span>
+              </div>
+              <p>ApplicationSet과 application controller의 책임을 나눠 생성, 갱신, drift 복구, 삭제를 설계합니다.</p>
+            </li>
+            <li class="entry">
+              <h3><a href="/notes/argocd-application-lifecycle/">Git에서 Argo CD가 참조하는 매니페스트 디렉터리를 삭제하면 어디까지 삭제되는가</a></h3>
+              <div class="article-meta">
+                <time datetime="2026-07-22">2026.07.22</time>
+                <span>5분 읽기</span>
+                <span>Argo CD, GitOps, Kubernetes</span>
+              </div>
+              <p>Git 경로 삭제가 ApplicationSet, Application, child resource 삭제로 이어지는 조건을 분리해 확인합니다.</p>
+            </li>
+            <li class="entry">
+              <h3><a href="/notes/jvm-memory-usage-not-load/">ECS on EC2는 정말 Fargate보다 저렴했을까 — 고밀도 배치에서 놓친 호스트 시스템 메모리</a></h3>
+              <div class="article-meta">
+                <time datetime="2026-07-19">2026.07.19</time>
+                <span>5분 읽기</span>
+                <span>Docker</span>
+              </div>
+              <p>ECS on EC2 고밀도 배치에서 시스템 메모리와 실패 예산을 비용 판단에 포함해야 하는 이유를 정리합니다.</p>
+            </li>
+          </ul>
+        </section>
+        <section class="home-sections" aria-labelledby="more-title">
+          <h2 id="more-title">더 읽기</h2>
+          <ul>
+            <li><a href="/cases/">운영 사례</a> — 문제, 결정, 검증 과정을 모았습니다.</li>
+            <li><a href="/labs/">실습</a> — 운영 신호를 살피며 대응을 선택합니다.</li>
+            <li><a href="/tech-map/">기술 진화 지도</a> — 기술의 변화와 연결을 살펴봅니다.</li>
+          </ul>
+        </section>
+      </div>
+    </main>
+    <footer class="site-footer">
+      <p>© 2026 kedzie.dev</p>
+      <a href="/index.xml">RSS</a>
+    </footer>
+    <section id="search-panel" class="search-panel" hidden role="dialog" aria-modal="true" aria-labelledby="search-title">
+      <div class="search-box">
+        <div class="search-head">
+          <h2 id="search-title">검색</h2>
+          <button class="icon-button search-close" type="button" aria-label="검색 닫기">×</button>
+        </div>
+        <label class="search-field">
+          <span>키워드</span>
+          <input id="search-query" type="search" autocomplete="off" placeholder="GitOps, HPA, TargetGroupBinding">
+        </label>
+        <div id="search-results" class="search-results" role="list" aria-live="polite"></div>
+      </div>
+    </section>
+    <script defer src="/js/atlas.js"></script>  </body>
+</html>

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>운영 실습 | kedzie.dev</title>
+    <meta name="description" content="운영 신호를 먼저 확인하고 대응 범위와 영향을 비교하는 인터랙티브 시나리오.">
+    <link rel="canonical" href="https://kedzie-dev.github.io/labs/">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="alternate" type="application/rss+xml" href="https://kedzie-dev.github.io/labs/index.xml" title="kedzie.dev">
+    <link rel="stylesheet" href="/css/atlas.css">
+    <link rel="stylesheet" href="/css/features.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="site-brand" href="/">kedzie.dev</a>
+        <nav class="site-nav" aria-label="주요 메뉴">
+          <ul>
+            <li><a href="/notes/">글</a></li>
+            <li><a href="/cases/">사례</a></li>
+            <li><a href="/labs/" aria-current="page">실습</a></li>
+            <li><a href="/tech-map/">기술 지도</a></li>
+          </ul>
+        </nav>
+        <button class="search-toggle" type="button" aria-label="검색 열기" aria-haspopup="dialog" aria-controls="search-panel">검색</button>
+      </div>
+    </header>
+    <main id="main-content" tabindex="-1">
+      <section class="collection-page">
+        <header class="collection-header">
+          <h1>운영 실습</h1>
+          <p>운영 신호를 먼저 확인하고 대응 범위와 영향을 비교하는 인터랙티브 시나리오.</p>
+        </header>
+        <div class="collection-intro article-content"><p>운영 신호를 먼저 확인하고 대응 범위와 영향을 비교하는 인터랙티브 시나리오입니다.</p>
+        </div>
+        <ul class="entry-list">
+          <li class="entry">
+            <h2><a href="/labs/simulator/">운영 시뮬레이터: 배포 직후 5xx 증가</a></h2>
+            <div class="article-meta">
+              <time datetime="2026-07-25">2026.07.25</time>
+              <span>0분 읽기</span>
+              <span>GitOps, Jenkins</span>
+            </div>
+            <p>배포 직후 5xx 오류가 증가한 상황에서 배포 이벤트, 로그, 의존성 지표를 비교해 롤백 판단을 연습합니다.</p>
+          </li>
+          <li class="entry">
+            <h2><a href="/labs/db-connection-pool/">운영 시뮬레이터: DB connection pool 고갈</a></h2>
+            <div class="article-meta">
+              <time datetime="2026-07-27">2026.07.27</time>
+              <span>0분 읽기</span>
+              <span>Kubernetes, Grafana</span>
+            </div>
+            <p>트래픽 증가 상황에서 connection pool 대기열, worker 동시성, DB 부하를 비교합니다.</p>
+          </li>
+          <li class="entry">
+            <h2><a href="/labs/hpa-wrong-signal/">운영 시뮬레이터: HPA가 잘못된 지표를 따른다</a></h2>
+            <div class="article-meta">
+              <time datetime="2026-07-27">2026.07.27</time>
+              <span>0분 읽기</span>
+              <span>Docker, Kubernetes, Grafana</span>
+            </div>
+            <p>부하 상황에서도 autoscaling이 지연될 때 HPA 지표와 실제 수요 신호를 비교합니다.</p>
+          </li>
+          <li class="entry">
+            <h2><a href="/labs/argo-cd-drift-sync/">운영 시뮬레이터: Argo CD drift와 sync 실패</a></h2>
+            <div class="article-meta">
+              <time datetime="2026-07-27">2026.07.27</time>
+              <span>0분 읽기</span>
+              <span>Argo CD, GitOps</span>
+            </div>
+            <p>선언한 상태와 클러스터 상태가 어긋났을 때 sync status, drift, diff log를 비교합니다.</p>
+          </li>
+        </ul>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <p>© 2026 kedzie.dev</p>
+      <a href="/index.xml">RSS</a>
+    </footer>
+    <section id="search-panel" class="search-panel" hidden role="dialog" aria-modal="true" aria-labelledby="search-title">
+      <div class="search-box">
+        <div class="search-head">
+          <h2 id="search-title">검색</h2>
+          <button class="icon-button search-close" type="button" aria-label="검색 닫기">×</button>
+        </div>
+        <label class="search-field">
+          <span>키워드</span>
+          <input id="search-query" type="search" autocomplete="off" placeholder="GitOps, HPA, TargetGroupBinding">
+        </label>
+        <div id="search-results" class="search-results" role="list" aria-live="polite"></div>
+      </div>
+    </section>
+    <script defer src="/js/atlas.js"></script>  </body>
+</html>

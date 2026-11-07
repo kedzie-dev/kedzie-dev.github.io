@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Git에서 Argo CD가 참조하는 매니페스트 디렉터리를 삭제하면 어디까지 삭제되는가 | kedzie.dev</title>
+    <meta name="description" content="Git 경로 삭제가 ApplicationSet, Application, child resource 삭제로 이어지는 조건을 분리해 확인합니다.">
+    <link rel="canonical" href="https://kedzie-dev.github.io/notes/argocd-application-lifecycle/">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/atlas.css">
+    <link rel="stylesheet" href="/css/features.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="site-brand" href="/">kedzie.dev</a>
+        <nav class="site-nav" aria-label="주요 메뉴">
+          <ul>
+            <li><a href="/notes/" aria-current="page">글</a></li>
+            <li><a href="/cases/">사례</a></li>
+            <li><a href="/labs/">실습</a></li>
+            <li><a href="/tech-map/">기술 지도</a></li>
+          </ul>
+        </nav>
+        <button class="search-toggle" type="button" aria-label="검색 열기" aria-haspopup="dialog" aria-controls="search-panel">검색</button>
+      </div>
+    </header>
+    <main id="main-content" tabindex="-1">
+      <article class="article-shell">
+        <header class="article-header">
+          <nav class="breadcrumbs" aria-label="현재 위치">
+            <a href="/">홈</a>
+            <span aria-hidden="true">/</span><a href="/notes/">운영 노트</a>
+            <span aria-hidden="true">/</span><span aria-current="page">Git에서 Argo CD가 참조하는 매니페스트 디렉터리를 삭제하면 어디까지 삭제되는가</span>
+          </nav>
+          <p class="eyebrow">NOTES</p>
+          <h1>Git에서 Argo CD가 참조하는 매니페스트 디렉터리를 삭제하면 어디까지 삭제되는가</h1>
+          <div class="article-meta">
+            <time datetime="2026-07-22">2026.07.22</time>
+            <span>5분 읽기</span>
+            <span>Argo CD, GitOps, Kubernetes</span>
+          </div>
+          <p class="article-summary">Git 경로 삭제가 ApplicationSet, Application, child resource 삭제로 이어지는 조건을 분리해 확인합니다.</p>
+        </header>
+        <div class="article-layout has-aside">
+          <div class="article-content">
+            <p>운영 중인 서비스의 매니페스트 디렉터리 하나를 Git에서 삭제했다. 그러면 Argo CD는 Application만 정리할까, 아니면 해당 Application의 관리 대상 리소스(workload)까지 정리할까?</p>
+            <p>삭제 범위는 <code>prune: true</code> 하나로 결정되지 않는다. controller별 관리 대상, generated <code>Application</code>의 finalizer, workload 보존 정책을 함께 확인해야 한다. ApplicationSet과 App-of-Apps를 구분해 Git 변경이 각 계층을 어떻게 통과하는지 살펴본다.</p>
+            <p>여기서 매니페스트 디렉터리는 Git 저장소 안에서 Argo CD <code>Application</code>의 <code>spec.source.path</code>가 가리키는 디렉터리를 뜻한다.</p>
+            <h2 id="대표-글과-이-글의-역할">대표 글과 이 글의 역할</h2>
+            <p><a href="/notes/argocd-application-lifecycle-design/">대표 글</a>은 새 서비스 생성, 이미지 갱신, drift 복구, 삭제에서 controller별 관리 범위를 설명한다. 이 글은 그중 <strong>삭제</strong>를 다룬다. <code>prune</code>, <code>Application</code> 삭제, finalizer, <code>preserveResourcesOnDeletion</code>, 삭제 순서와 승인 절차가 각각 무엇을 결정하는지 정리한다.</p>
+            <p>삭제를 읽는 데 필요한 전제는 세 가지다.</p>
+            <ul>
+              <li>ApplicationSet은 generator 결과에 맞춰 generated <code>Application</code>을 조정한다.</li>
+              <li>App-of-Apps에서는 parent <code>Application</code>이 child <code>Application</code>을 조정한다.</li>
+              <li>각 <code>Application</code>의 workload는 Argo CD application controller가 sync·삭제한다.</li>
+            </ul>
+            <p>삭제 결과를 이해하려면 리소스 이름보다 이 관리 경계를 먼저 봐야 한다.</p>
+            <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">Git 경로 변경
+</span></span><span class="line"><span class="cl">  ├─ ApplicationSet generator → generated Application
+</span></span><span class="line"><span class="cl">  │                              └─ Argo CD application controller → workload
+</span></span><span class="line"><span class="cl">  └─ App-of-Apps parent Application → child Application
+</span></span><span class="line"><span class="cl">                                         └─ Argo CD application controller → workload
+</span></span></code></pre></div><p>생성 단계에서는 ApplicationSet generator나 parent <code>Application</code>이 다음 계층의 <code>Application</code>을 만든다. 갱신 단계에서는 child <code>Application</code>이 source의 desired state를 대상 클러스터에 반영한다. 삭제 단계에 들어서면 <code>Application</code> 자체의 삭제와 그 Application이 관리하던 workload의 삭제가 서로 다른 정책으로 갈린다.</p>
+            <p>ApplicationSet controller는 대상 클러스터의 Deployment나 Service를 직접 조정하지 않는다. ApplicationSet이 하는 일은 generator 결과에 맞춰 Argo CD <code>Application</code> 리소스를 만들고, 바꾸고, 지우는 것이다.<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> 실제 workload의 desired state를 계산하고 적용하는 책임은 child <code>Application</code>을 조정하는 Argo CD application controller에 있다.</p>
+            <p>그래서 이 글에서는 “누가 소유하는가”보다 <strong>어느 controller가 무엇을 관리하는가</strong>를 기준으로 본다. Kubernetes <code>ownerReferences</code>, Argo CD tracking 정보, controller별 관리 범위는 서로 다른 관계다.</p>
+            <h2 id="applicationset-경로에서-디렉터리를-지우면">ApplicationSet 경로에서 디렉터리를 지우면</h2>
+            <p>서비스 오버레이 경로를 ApplicationSet Git generator가 스캔한다고 하자.</p>
+            <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">generators</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">git</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">directories</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">manifests/applications/*/overlays/production</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">syncPolicy</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">applicationsSync</span><span class="p">:</span><span class="w"> </span><span class="l">sync</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">template</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">syncPolicy</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">automated</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">prune</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">selfHeal</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span></code></pre></div><p>새 overlay 디렉터리가 생기면 generator가 경로를 발견해 generated <code>Application</code>을 만든다. 기존 경로의 source나 template이 바뀌면 ApplicationSet controller가 generated <code>Application</code>을 갱신하고, child <code>Application</code>이 그 변경을 workload에 반영한다. 디렉터리가 사라질 때부터는 삭제 전파 정책이 개입한다.</p>
+            <p>Git에서 <code>app-a/overlays/production</code>을 삭제하면 첫 번째 변화는 workload가 아니다. Git generator가 더 이상 해당 경로를 매칭하지 않으면서 ApplicationSet이 만들어야 할 Application 목록에서 <code>app-a</code>가 빠진다. <code>applicationsSync</code> 정책이 generator 결과에서 빠진 Application의 삭제를 허용하고 있다면 generated <code>Application</code>이 삭제 대상이 된다.<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup></p>
+            <p>여기서 <code>automated.prune: true</code>를 ApplicationSet의 삭제 스위치로 읽으면 안 된다. 이 값은 template으로 전달된 generated <code>Application</code>의 sync policy다. generated <code>Application</code>이 자신의 source에서 더 이상 보이지 않는 리소스를 발견했을 때 자동 prune하도록 하는 설정이다. ApplicationSet controller가 generated <code>Application</code> 자체를 삭제할 수 있는지는 <code>applicationsSync</code> 정책과 별도다.<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup></p>
+            <h2 id="application-삭제가-workload-삭제로-이어지는-조건">Application 삭제가 workload 삭제로 이어지는 조건</h2>
+            <p>ApplicationSet이 만든 <code>Application</code>에는 parent ApplicationSet을 가리키는 Kubernetes <code>ownerReferences</code>가 붙는다. 또 <code>preserveResourcesOnDeletion: false</code>인 경우에는 Argo CD resources finalizer가 generated <code>Application</code>에 붙는다.<sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup></p>
+            <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">syncPolicy</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">preserveResourcesOnDeletion</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span></code></pre></div><p>이 설정은 generated <code>Application</code>이 삭제될 때 그 Application이 관리하던 workload까지 삭제하지 않도록 finalizer 생성을 막는다. 반대로 보존 정책을 켜지 않은 상태에서 Application이 cascading delete되면, Argo CD application controller가 finalizer를 처리하며 관리 대상 리소스도 삭제한다.</p>
+            <p>여기서 두 삭제 경로를 분리해야 한다.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>상황</th>
+                  <th>주로 작동하는 메커니즘</th>
+                  <th>결정되는 것</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Git에서 workload 매니페스트가 사라짐</td>
+                  <td>child Application의 <code>automated.prune</code></td>
+                  <td>sync 중 해당 리소스를 제거할지</td>
+                </tr>
+                <tr>
+                  <td>generated/child Application 자체가 삭제됨</td>
+                  <td>Kubernetes 삭제 전파 + Argo CD finalizer</td>
+                  <td>Application의 관리 대상 리소스까지 삭제할지</td>
+                </tr>
+              </tbody>
+            </table>
+            <p><code>prune=false</code>라고 해서 Application 삭제 시 workload가 항상 보존되는 것은 아니다. 반대로 <code>prune=true</code>라고 해서 Application 리소스 자체가 반드시 삭제되는 것도 아니다. 서로 다른 controller와 서로 다른 생명주기 단계의 설정이기 때문이다.</p>
+            <h2 id="app-of-apps에서는-parent가-바뀐다">App-of-Apps에서는 parent가 바뀐다</h2>
+            <p>App-of-Apps에서는 ApplicationSet 대신 parent <code>Application</code>이 상위 관리 단위다. parent의 source 경로에 child <code>Application</code> 매니페스트가 있고, parent에 automated prune이 켜져 있다면 Git에서 child 매니페스트를 삭제했을 때 parent가 child <code>Application</code>을 정리한다.<sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup></p>
+            <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">syncPolicy</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">automated</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">prune</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span></code></pre></div><p>parent source에 새 child 매니페스트를 추가하면 parent가 child <code>Application</code>을 생성한다. child의 source나 parent template이 바뀌면 parent가 child <code>Application</code>을 갱신하고, child <code>Application</code>이 자신의 workload를 동기화한다. child 매니페스트를 삭제하는 순간에는 parent의 prune과 child의 삭제 전파 정책이 차례로 작동한다.</p>
+            <p>그 다음 단계는 ApplicationSet과 같다. child <code>Application</code>이 삭제될 때 workload까지 지울지는 child Application의 finalizer와 삭제 전파 정책에 달려 있다. child 매니페스트에 <code>resources-finalizer.argocd.argoproj.io</code>가 있으면 cascading deletion이 활성화된다.<sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup></p>
+            <p>반대로 parent에 automated prune이 없다면 Git에서 child 매니페스트를 지워도 parent가 child <code>Application</code>을 자동 삭제하지 않는다. 복구한 설정을 대조해 보니 ApplicationSet template에는 자동 prune과 self-heal이 있었지만, App-of-Apps root에는 자동 prune이 활성화되어 있지 않았다. “상위에서 관리한다”는 설명만으로는 실제 삭제 결과를 예측할 수 없다.</p>
+            <h2 id="삭제-범위와-순서는-서로-다른-문제다">삭제 범위와 순서는 서로 다른 문제다</h2>
+            <p>삭제 범위를 정한 다음에는 삭제 순서를 통제해야 한다. <code>PruneLast=true</code>는 prune을 sync operation의 마지막 implicit wave로 미룬다. 다른 리소스가 적용되고 healthy 상태가 된 뒤에야 불필요한 리소스를 삭제하도록 만드는 옵션이다.<sup id="fnref:7"><a href="#fn:7" class="footnote-ref" role="doc-noteref">7</a></sup></p>
+            <p><code>ApplyOutOfSyncOnly=true</code>는 이름이 비슷해 보여도 다른 문제를 푼다. out-of-sync 리소스만 apply하는 selective sync 옵션이지, prune의 순서를 정하는 옵션이 아니다. 고위험 리소스에는 <code>Prune=confirm</code>으로 수동 승인을 요구할 수도 있다.<sup id="fnref1:7"><a href="#fn:7" class="footnote-ref" role="doc-noteref">7</a></sup></p>
+            <p>즉, 운영 정책은 한 줄짜리 “prune on/off”가 아니다.</p>
+            <ol>
+              <li>어떤 controller가 Application을 조정하는지 정한다.</li>
+              <li>Application이 workload를 자동 prune할지 정한다.</li>
+              <li>Application 삭제 시 workload를 보존할지 정한다.</li>
+              <li>삭제 순서와 승인 절차를 정한다.</li>
+              <li>비연쇄 삭제 후 남은 리소스는 orphaned resource monitoring으로 관찰한다.<sup id="fnref:8"><a href="#fn:8" class="footnote-ref" role="doc-noteref">8</a></sup></li>
+            </ol>
+            <h2 id="삭제-전-확인-순서">삭제 전 확인 순서</h2>
+            <ol>
+              <li>Git에서 사라지는 대상이 workload 매니페스트인지, 서비스 디렉터리인지, child <code>Application</code>인지 확인한다.</li>
+              <li>그 계층을 삭제할 controller와 <code>applicationsSync</code> 또는 parent <code>Application</code>의 prune 정책을 확인한다.</li>
+              <li>삭제되는 <code>Application</code>에 finalizer가 있는지와 <code>preserveResourcesOnDeletion</code> 값을 확인한다.</li>
+              <li>workload를 지우는 것이 맞다면 <code>PruneLast</code>와 <code>Prune=confirm</code>으로 순서·승인 조건을 정한다.</li>
+              <li>workload를 남긴다면 orphaned resource monitoring으로 남은 리소스를 관찰한다.</li>
+            </ol>
+            <p>이 체크 순서는 대표 글의 controller 경계를 실제 삭제 판단으로 옮긴 것이다. 생성·갱신·drift까지 포함한 전체 흐름은 <a href="/notes/argocd-application-lifecycle-design/">Argo CD GitOps에서 애플리케이션 생명주기를 설계하는 법</a>에서 이어서 볼 수 있다.</p>
+            <h2 id="출처">출처</h2>
+            <div class="footnotes" role="doc-endnotes">
+              <hr>
+              <ol>
+                <li id="fn:1">
+                  <p><a href="https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Argo-CD-Integration/">How ApplicationSet controller interacts with Argo CD</a>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+                <li id="fn:2">
+                  <p><a href="https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Git/">Git Generator</a>&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+                <li id="fn:3">
+                  <p><a href="https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Controlling-Resource-Modification/">Controlling Resource Modification</a>&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+                <li id="fn:4">
+                  <p><a href="https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Application-Deletion/">Application Pruning &amp; Resource Deletion</a>&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+                <li id="fn:5">
+                  <p><a href="https://argo-cd.readthedocs.io/en/stable/operator-manual/cluster-bootstrapping/">Cluster Bootstrapping — App Of Apps Pattern</a>&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+                <li id="fn:6">
+                  <p><a href="https://argo-cd.readthedocs.io/en/stable/user-guide/app_deletion/">App Deletion</a>&#160;<a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+                <li id="fn:7">
+                  <p><a href="https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/">Sync Options</a>&#160;<a href="#fnref:7" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:7" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+                <li id="fn:8">
+                  <p><a href="https://argo-cd.readthedocs.io/en/stable/user-guide/orphaned-resources/">Orphaned Resources Monitoring</a>&#160;<a href="#fnref:8" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+                </li>
+              </ol>
+            </div>
+          </div>
+          <aside class="article-aside">
+            <aside class="toc-panel" aria-labelledby="toc-title">
+              <h2 id="toc-title">목차</h2>
+              <nav id="TableOfContents">
+                <ul>
+                  <li><a href="#대표-글과-이-글의-역할">대표 글과 이 글의 역할</a></li>
+                  <li><a href="#applicationset-경로에서-디렉터리를-지우면">ApplicationSet 경로에서 디렉터리를 지우면</a></li>
+                  <li><a href="#application-삭제가-workload-삭제로-이어지는-조건">Application 삭제가 workload 삭제로 이어지는 조건</a></li>
+                  <li><a href="#app-of-apps에서는-parent가-바뀐다">App-of-Apps에서는 parent가 바뀐다</a></li>
+                  <li><a href="#삭제-범위와-순서는-서로-다른-문제다">삭제 범위와 순서는 서로 다른 문제다</a></li>
+                  <li><a href="#삭제-전-확인-순서">삭제 전 확인 순서</a></li>
+                  <li><a href="#출처">출처</a></li>
+                </ul>
+              </nav>
+            </aside>
+          </aside>
+        </div>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <p>© 2026 kedzie.dev</p>
+      <a href="/index.xml">RSS</a>
+    </footer>
+    <section id="search-panel" class="search-panel" hidden role="dialog" aria-modal="true" aria-labelledby="search-title">
+      <div class="search-box">
+        <div class="search-head">
+          <h2 id="search-title">검색</h2>
+          <button class="icon-button search-close" type="button" aria-label="검색 닫기">×</button>
+        </div>
+        <label class="search-field">
+          <span>키워드</span>
+          <input id="search-query" type="search" autocomplete="off" placeholder="GitOps, HPA, TargetGroupBinding">
+        </label>
+        <div id="search-results" class="search-results" role="list" aria-live="polite"></div>
+      </div>
+    </section>
+    <script defer src="/js/atlas.js"></script>  </body>
+</html>

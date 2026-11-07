@@ -9,4 +9,4 @@ A Korean technical blog about operating Kubernetes, GitOps, and SRE systems. The
 - **Operational Cases** (`/cases/`): portfolio cases showing a problem, decision, verification criteria, and outcome.
 - **Technology Evolution Map** (`/tech-map/`): an interactive account of historical relationships between technologies.
 
-Each resource has one canonical URL. Existing aliases preserve old links. `landmarks` in front matter remain content classification metadata; they no longer drive the homepage UI.
+Each resource has one canonical URL. Static redirect pages preserve old links. Technical domains classify the writing; they do not drive the homepage UI.

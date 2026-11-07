@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>브라우저 상호작용 | kedzie.dev</title>
+    <meta name="description" content="비동기 요청과 부분 갱신은 화면을 빠르게 만들지만, 클라이언트 상태·중복 요청·API 부하라는 새로운 운영 책임을 만든다.">
+    <link rel="canonical" href="https://kedzie-dev.github.io/tech-map/extensions/browser-interactions/">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/atlas.css">
+    <link rel="stylesheet" href="/css/features.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="site-brand" href="/">kedzie.dev</a>
+        <nav class="site-nav" aria-label="주요 메뉴">
+          <ul>
+            <li><a href="/notes/">글</a></li>
+            <li><a href="/cases/">사례</a></li>
+            <li><a href="/labs/">실습</a></li>
+            <li><a href="/tech-map/" aria-current="page">기술 지도</a></li>
+          </ul>
+        </nav>
+        <button class="search-toggle" type="button" aria-label="검색 열기" aria-haspopup="dialog" aria-controls="search-panel">검색</button>
+      </div>
+    </header>
+    <main id="main-content" tabindex="-1">
+      <article class="tem-extension-page tem-extension-page-has-protocols">
+        <div class="tem-extension-layout">
+          <div class="tem-extension-main">
+            <nav class="tem-extension-breadcrumb" aria-label="현재 위치">
+              <a href="/tech-map/">기술 진화 지도</a>
+              <span aria-hidden="true">/</span>
+              <a href="/tech-map/?node=javascript">JavaScript</a>
+              <span aria-hidden="true">/</span>
+              <span aria-current="page">브라우저 상호작용</span>
+            </nav>
+            <header class="tem-extension-hero">
+              <p>EXPANSION</p>
+              <h1>브라우저 상호작용</h1>
+              <p>비동기 요청과 부분 갱신은 화면을 빠르게 만들지만, 클라이언트 상태·중복 요청·API 부하라는 새로운 운영 책임을 만든다.</p>
+            </header>
+            <div class="tem-extension-content article-content">
+              <h2 id="페이지-전체를-다시-받지-않는-선택">페이지 전체를 다시 받지 않는 선택</h2>
+              <p>AJAX는 JavaScript와 HTTP 요청을 조합해, 페이지 이동 없이 필요한 데이터만 받아 화면 일부를 갱신하는 방식이다. 사용자는 더 짧은 대기와 끊기지 않는 상호작용을 얻는다.</p>
+              <p>그러나 화면이 가진 상태와 서버가 가진 상태가 더 자주 분리된다. 사용자가 빠르게 연속 입력하거나 네트워크가 지연되면, 늦게 도착한 응답이 최신 화면을 덮어쓸 수 있다. 비동기 상호작용은 화면 갱신 자체보다 요청의 순서와 취소를 설계 대상으로 만든다.</p>
+              <h2 id="api-호출량은-사용자-경험의-일부다">API 호출량은 사용자 경험의 일부다</h2>
+              <p>부분 갱신은 한 화면에서 더 많은 API 요청을 만든다. 자동 완성, 주기적 새로고침, 재시도는 응답성을 높일 수 있지만, API·데이터베이스에 순간 부하를 만들 수도 있다.</p>
+              <p>그래서 클라이언트는 입력을 묶거나 늦추고, 더 이상 필요 없는 요청은 취소하며, 실패 시 무작정 반복하지 않도록 설계한다. 서버는 중복 요청, 시간 초과, 일시적 실패가 정상적인 입력이라는 전제에서 멱등성·제한·관측을 준비한다.</p>
+              <h2 id="운영에서-확인할-질문">운영에서 확인할 질문</h2>
+              <ul>
+                <li>사용자 행동 하나가 평균 몇 개의 API 요청을 만들며, 피크에서는 어떻게 달라지는가?</li>
+                <li>이전 요청의 응답이 최신 화면 상태를 덮어쓰지 않게 취소·순서 처리를 했는가?</li>
+                <li>재시도는 어떤 오류에만 적용하며, 중복 실행 위험은 없는가?</li>
+                <li>브라우저 오류와 API 지연·오류를 같은 사용자 흐름으로 연결해 볼 수 있는가?</li>
+              </ul>
+              <h2 id="출처">출처</h2>
+              <ul>
+                <li><a href="https://ecma-international.org/publications-and-standards/standards/ecma-262/">ECMA-262 — ECMAScript Language Specification</a></li>
+                <li><a href="https://www.w3.org/TR/XMLHttpRequest/">XMLHttpRequest Standard</a></li>
+              </ul>
+            </div>
+            <section class="tem-next-extensions" aria-labelledby="tem-next-title">
+              <p>CONTINUE EXPLORING</p>
+              <h2 id="tem-next-title">다음으로 읽기</h2>
+              <ul>
+                <li><a href="/tech-map/extensions/web-api-design/"><strong>웹 API 설계</strong><span>브라우저의 요청이 안정적으로 동작하려면 어떤 HTTP API 계약이 필요한지 읽는다. →</span></a></li>
+              </ul>
+            </section>
+          </div>
+          <div class="tem-extension-protocols print:hidden">
+            <aside class="protocol-sidebar" aria-labelledby="protocol-sidebar-title">
+              <p class="protocol-sidebar-kicker">TCP/IP 4계층</p>
+              <h2 id="protocol-sidebar-title">이 글의 프로토콜</h2>
+              <ol class="protocol-sidebar-list">
+                <li class="protocol-sidebar-item">
+                  <div class="protocol-sidebar-layer">
+                    <span>L4</span>
+                    <span>Application</span>
+                  </div>
+                  <strong>HTTP</strong>
+                  <span class="protocol-sidebar-pdu">PDU · message</span>
+                  <a class="protocol-sidebar-section" href="#%ed%8e%98%ec%9d%b4%ec%a7%80-%ec%a0%84%ec%b2%b4%eb%a5%bc-%eb%8b%a4%ec%8b%9c-%eb%b0%9b%ec%a7%80-%ec%95%8a%eb%8a%94-%ec%84%a0%ed%83%9d">본문: 페이지 전체를 다시 받지 않는 선택</a>
+                </li>
+              </ol>
+            </aside>
+          </div>
+        </div>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <p>© 2026 kedzie.dev</p>
+      <a href="/index.xml">RSS</a>
+    </footer>
+    <section id="search-panel" class="search-panel" hidden role="dialog" aria-modal="true" aria-labelledby="search-title">
+      <div class="search-box">
+        <div class="search-head">
+          <h2 id="search-title">검색</h2>
+          <button class="icon-button search-close" type="button" aria-label="검색 닫기">×</button>
+        </div>
+        <label class="search-field">
+          <span>키워드</span>
+          <input id="search-query" type="search" autocomplete="off" placeholder="GitOps, HPA, TargetGroupBinding">
+        </label>
+        <div id="search-results" class="search-results" role="list" aria-live="polite"></div>
+      </div>
+    </section>
+    <script defer src="/js/atlas.js"></script>  </body>
+</html>

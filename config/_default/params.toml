@@ -1,8 +1,0 @@
-enableSearch = true
-enableCodeCopy = true
-
-[article]
-  showDate = true
-  showBreadcrumbs = true
-  showReadingTime = true
-  showTableOfContents = true

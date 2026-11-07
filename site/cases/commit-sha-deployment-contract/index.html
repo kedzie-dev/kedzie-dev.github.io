@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GitOps 배포 버전 계약과 커밋 SHA | kedzie.dev</title>
+    <meta name="description" content="가변 이미지 태그 대신 커밋 SHA를 배포 기준으로 남긴 사례.">
+    <link rel="canonical" href="https://kedzie-dev.github.io/cases/commit-sha-deployment-contract/">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/css/atlas.css">
+    <link rel="stylesheet" href="/css/features.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="site-brand" href="/">kedzie.dev</a>
+        <nav class="site-nav" aria-label="주요 메뉴">
+          <ul>
+            <li><a href="/notes/">글</a></li>
+            <li><a href="/cases/" aria-current="page">사례</a></li>
+            <li><a href="/labs/">실습</a></li>
+            <li><a href="/tech-map/">기술 지도</a></li>
+          </ul>
+        </nav>
+        <button class="search-toggle" type="button" aria-label="검색 열기" aria-haspopup="dialog" aria-controls="search-panel">검색</button>
+      </div>
+    </header>
+    <main id="main-content" tabindex="-1">
+      <article class="article-shell">
+        <header class="article-header">
+          <nav class="breadcrumbs" aria-label="현재 위치">
+            <a href="/">홈</a>
+            <span aria-hidden="true">/</span><a href="/cases/">대표 운영 사례</a>
+            <span aria-hidden="true">/</span><span aria-current="page">GitOps 배포 버전 계약과 커밋 SHA</span>
+          </nav>
+          <p class="eyebrow">CASES</p>
+          <h1>GitOps 배포 버전 계약과 커밋 SHA</h1>
+          <div class="article-meta">
+            <time datetime="2026-07-24">2026.07.24</time>
+            <span>1분 읽기</span>
+            <span>GitOps, Jenkins, Argo CD</span>
+          </div>
+          <p class="article-summary">가변 이미지 태그 대신 커밋 SHA를 배포 기준으로 남긴 사례.</p>
+        </header>
+        <div class="article-layout has-aside">
+          <div class="article-content">
+            <p>가변 태그인 <code>latest</code>만으로는 실제 배포 버전과 롤백 대상을 재현하기 어렵다는 문제에서 출발했다. 이미지 빌드와 GitOps desired state 갱신을 나누고, 커밋 SHA를 배포 계약으로 남기는 방식을 정리했다.</p>
+            <h2 id="문제">문제</h2>
+            <p>Git 기록만으로 실행 중인 이미지와 이전 배포 버전을 확실히 식별하기 어려웠다.</p>
+            <h2 id="판단">판단</h2>
+            <p>이미지 생성과 배포 결정은 별도 책임이며, 배포 버전은 변경 불가능한 값으로 Git에 선언해야 한다고 봤다.</p>
+            <h2 id="결과">결과</h2>
+            <p>이미지, GitOps 태그, Argo CD sync를 따라 배포와 롤백을 확인하는 흐름을 정리했다.</p>
+            <h2 id="evidence">Evidence</h2>
+            <ul>
+              <li><a href="/notes/commit-sha-deployment-contract/">GitOps 배포 버전은 누가 결정할까</a></li>
+              <li><a href="/labs/argo-cd-drift-sync/">Argo CD drift와 sync 실패</a></li>
+            </ul>
+          </div>
+          <aside class="article-aside">
+            <aside class="toc-panel" aria-labelledby="toc-title">
+              <h2 id="toc-title">목차</h2>
+              <nav id="TableOfContents">
+                <ul>
+                  <li><a href="#문제">문제</a></li>
+                  <li><a href="#판단">판단</a></li>
+                  <li><a href="#결과">결과</a></li>
+                  <li><a href="#evidence">Evidence</a></li>
+                </ul>
+              </nav>
+            </aside>
+          </aside>
+        </div>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <p>© 2026 kedzie.dev</p>
+      <a href="/index.xml">RSS</a>
+    </footer>
+    <section id="search-panel" class="search-panel" hidden role="dialog" aria-modal="true" aria-labelledby="search-title">
+      <div class="search-box">
+        <div class="search-head">
+          <h2 id="search-title">검색</h2>
+          <button class="icon-button search-close" type="button" aria-label="검색 닫기">×</button>
+        </div>
+        <label class="search-field">
+          <span>키워드</span>
+          <input id="search-query" type="search" autocomplete="off" placeholder="GitOps, HPA, TargetGroupBinding">
+        </label>
+        <div id="search-results" class="search-results" role="list" aria-live="polite"></div>
+      </div>
+    </section>
+    <script defer src="/js/atlas.js"></script>  </body>
+</html>

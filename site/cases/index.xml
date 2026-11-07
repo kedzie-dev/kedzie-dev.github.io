@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>대표 운영 사례 | kedzie.dev</title>
+    <link>https://kedzie-dev.github.io/cases/</link>
+    <description>Kubernetes, GitOps, SRE 운영 기록</description>
+    <language>ko</language>
+    <atom:link href="https://kedzie-dev.github.io/cases/index.xml" rel="self" type="application/rss+xml"/>
+
+      <item>
+        <title>ECS on EC2 런타임 메모리 및 용량 관리</title>
+        <link>https://kedzie-dev.github.io/cases/ecs-ec2-memory-capacity/</link>
+        <pubDate>Fri, 24 Jul 2026 00:00:00 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/cases/ecs-ec2-memory-capacity/</guid>
+        <description>ECS on EC2 고밀도 배치에서 시스템용 메모리와 예비 용량을 다시 계산한 사례.</description>
+      </item>
+
+      <item>
+        <title>GitOps 배포 버전 계약과 커밋 SHA</title>
+        <link>https://kedzie-dev.github.io/cases/commit-sha-deployment-contract/</link>
+        <pubDate>Fri, 24 Jul 2026 00:00:00 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/cases/commit-sha-deployment-contract/</guid>
+        <description>가변 이미지 태그 대신 커밋 SHA를 배포 기준으로 남긴 사례.</description>
+      </item>
+
+      <item>
+        <title>Argo CD 애플리케이션 수명 주기 및 controller 경계</title>
+        <link>https://kedzie-dev.github.io/cases/argocd-controller-boundary/</link>
+        <pubDate>Fri, 24 Jul 2026 00:00:00 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/cases/argocd-controller-boundary/</guid>
+        <description>ApplicationSet과 App-of-Apps에서 controller별 관리 범위와 확인 지점을 분리한 사례.</description>
+      </item>
+
+      <item>
+        <title>Kubernetes 러너 격리 및 보안</title>
+        <link>https://kedzie-dev.github.io/cases/kubernetes-runner-isolation/</link>
+        <pubDate>Fri, 24 Jul 2026 00:00:00 &#43;0900</pubDate>
+        <guid>https://kedzie-dev.github.io/cases/kubernetes-runner-isolation/</guid>
+        <description>공용 Kubernetes executor에서 Runner manager, Job Pod, 권한, cache 경계를 나눈 사례.</description>
+      </item>
+
+  </channel>
+</rss>

@@ -1,5 +1,7 @@
 # Kedzie Atlas Migration
 
+Historical migration plan. Superseded by the content-first design in ADR-0003 and the plain HTML architecture in [ADR-0004](adr/0004-plain-html-site.md). Current editing and deployment instructions are in [README.md](../README.md).
+
 ## Target
 
 - Hugo remains the site generator.
