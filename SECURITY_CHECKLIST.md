@@ -33,4 +33,4 @@
 ## 6. 공개 디렉터리
 - `site/`의 파일은 모두 공개된다. 초안과 비공개 자료는 그 밖에서 관리한다.
 - [자동] `site/` 안의 숨김 파일(`.nojekyll` 제외), 초안 디렉터리, 심볼릭 링크, 허용하지 않은 파일 확장자를 차단한다.
-- [자동] HTML 링크·앵커, 검색 레코드, RSS·sitemap XML은 `python3 scripts/check-site.py`로 검증한다.
+- [자동] HTML 링크·앵커와 canonical URL은 `python3 scripts/check-site.py`로 검증한다.

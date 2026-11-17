@@ -1,13 +1,13 @@
 # kedzie.dev
 
-HTML·CSS·JavaScript를 직접 편집하는 GitHub Pages 블로그입니다. 사이트 생성기, 패키지 설치, 빌드 과정이 없습니다.
+HTML·CSS를 직접 편집하는 GitHub Pages 블로그입니다. 사이트 생성기, 패키지 설치, 빌드 과정이 없습니다. JavaScript는 본문 다이어그램과 이전 주소 이동에만 사용합니다.
 
 ## 파일 위치
 
 - `site/index.html`: 홈
 - `site/notes/`, `site/cases/`: 글·사례 컬렉션과 개별 페이지
 - `site/css/`: 공통 스타일
-- `site/js/atlas.js`: 검색과 코드 복사
+- `site/js/redirect.js`: 이전 주소의 쿼리·앵커를 유지한 이동
 - `site/lib/mermaid/mermaid.min.js`: 로컬 Mermaid 라이브러리
 - `site/posts/`, `site/portfolio/`: 이전 URL의 이동 페이지
 
@@ -21,7 +21,7 @@ HTML·CSS·JavaScript를 직접 편집하는 GitHub Pages 블로그입니다. �
 python3 -m http.server 8000 --directory site
 ```
 
-브라우저에서 <http://localhost:8000>을 엽니다. 검색은 HTTP로 제공할 때 동작합니다.
+브라우저에서 <http://localhost:8000>을 엽니다.
 
 ## 글 편집
 
@@ -31,8 +31,7 @@ python3 -m http.server 8000 --directory site
 
 1. 제목, 설명, canonical URL, 날짜, 본문, 목차의 제목과 앵커를 수정합니다.
 2. 해당 컬렉션의 `index.html`에 링크를 추가합니다. 최근 글이면 홈의 목록도 갱신합니다.
-3. `site/index.json`에 검색용 `title`, `url`, `section`, `date`, `summary`, `content`를 추가합니다. 기존 글의 본문이 바뀌면 해당 검색 레코드도 수정합니다.
-4. `site/sitemap.xml`에 canonical URL을, 컬렉션의 `index.xml`에 RSS 항목을 추가합니다. 홈 RSS는 현재 컬렉션 피드 링크를 제공합니다.
+별도 검색 데이터, RSS 피드, 사이트맵은 관리하지 않습니다.
 
 공통 헤더·푸터도 각 HTML에 들어 있습니다. 공통 문구 변경 시 여러 파일을 함께 수정합니다. HTML에는 서버나 브라우저의 템플릿 처리가 없습니다.
 

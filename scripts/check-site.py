@@ -3,9 +3,7 @@
 
 from __future__ import annotations
 
-import json
 import sys
-import xml.etree.ElementTree as ET
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urljoin, urlsplit
@@ -22,7 +20,6 @@ class Page(HTMLParser):
         self.ids: set[str] = set()
         self.canonical: str | None = None
         self.redirect = False
-        self.article = False
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         attributes = dict(attrs)
@@ -38,9 +35,6 @@ class Page(HTMLParser):
             content = attributes.get("content", "")
             if "; url=" in content:
                 self.refs.append(content.split("; url=", 1)[1])
-        classes = attributes.get("class", "").split()
-        if tag == "article" and any(c in classes for c in ("article-shell", "tem-extension-page")):
-            self.article = True
 
 
 def main() -> int:
@@ -82,41 +76,12 @@ def main() -> int:
         for ref in page.refs:
             check_ref(path, ref)
 
-    search_path = SITE / "index.json"
-    try:
-        search = json.loads(search_path.read_text(encoding="utf-8"))
-        search_urls = set()
-        for item in search:
-            if not all(isinstance(item.get(key), str) for key in ("title", "url", "summary", "content")):
-                errors.append("index.json: every record needs title, url, summary, content strings")
-                continue
-            if item["url"] in search_urls:
-                errors.append(f"index.json: duplicate URL: {item['url']}")
-            search_urls.add(item["url"])
-            check_ref(search_path, item["url"])
-        for path, page in pages.items():
-            url = "/" + str(path.relative_to(SITE)).removesuffix("index.html")
-            if page.article and url not in search_urls:
-                errors.append(f"{path.relative_to(SITE)}: article missing from index.json")
-    except (OSError, ValueError, TypeError, AttributeError) as exc:
-        errors.append(f"index.json: {exc}")
-
-    for path in SITE.rglob("*.xml"):
-        try:
-            tree = ET.parse(path)
-            for element in tree.iter():
-                if element.tag in {"link", "guid", "{http://www.sitemaps.org/schemas/sitemap/0.9}loc"}:
-                    if element.text:
-                        check_ref(path, element.text)
-        except ET.ParseError as exc:
-            errors.append(f"{path.relative_to(SITE)}: invalid XML: {exc}")
-
     if errors:
         for error in errors:
             print(f"ERROR: {error}", file=sys.stderr)
         return 1
 
-    print(f"Static site checks passed: {len(pages)} HTML pages, {len(search_urls)} search records.")
+    print(f"Static site checks passed: {len(pages)} HTML pages.")
     return 0
 
 
