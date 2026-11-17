@@ -8,7 +8,6 @@
     <link rel="canonical" href="https://kedzie-dev.github.io/notes/argocd-application-lifecycle-design/">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="stylesheet" href="/css/atlas.css">
-    <link rel="stylesheet" href="/css/features.css">
   </head>
   <body>
     <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
@@ -19,8 +18,6 @@
           <ul>
             <li><a href="/notes/" aria-current="page">글</a></li>
             <li><a href="/cases/">사례</a></li>
-            <li><a href="/labs/">실습</a></li>
-            <li><a href="/tech-map/">기술 지도</a></li>
           </ul>
         </nav>
         <button class="search-toggle" type="button" aria-label="검색 열기" aria-haspopup="dialog" aria-controls="search-panel">검색</button>
@@ -164,9 +161,6 @@
               <li>디렉터리·child <code>Application</code>·parent <code>Application</code>이 사라질 때 각각 무엇을 남길 것인가?</li>
             </ul>
             <p>이 경계를 먼저 그려 두면 새 서비스가 생성되지 않거나, 이미지가 갱신되지 않거나, 수동 변경이 되돌아가거나, 디렉터리 삭제 범위가 불분명할 때도 확인할 controller와 설정을 빠르게 좁힐 수 있다. GitOps의 자동화는 Git 변경 그 자체가 아니라, 각 계층의 controller가 맡을 관리 범위를 명확히 정할 때 예측 가능해진다.</p>
-            <blockquote>
-              <p>관련 사례 확인: <a href="/labs/argo-cd-drift-sync/">Argo CD drift와 sync 실패</a>에서 Git desired state, sync 오류, live workload를 비교해 안전한 복구 범위를 확인할 수 있다.</p>
-            </blockquote>
           </div>
           <aside class="article-aside">
             <aside class="toc-panel" aria-labelledby="toc-title">

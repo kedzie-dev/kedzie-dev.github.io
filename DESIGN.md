@@ -6,7 +6,7 @@ The site is a reading tool. Content and accessibility take priority over visual 
 
 - Home: one sentence explaining the blog, then recent writing and links to the other collections.
 - Collections: title, description, and a plain list of entries. Titles are links; summaries and dates help readers choose.
-- Articles: one readable column. A table of contents may precede long articles. Code, tables, diagrams, and interactive labs must remain usable on small screens.
+- Articles: one readable column. A table of contents may precede long articles. Code, tables, and diagrams must remain usable on small screens.
 - Search: optional shortcut for finding existing content. Navigation and all writing remain available without it.
 
 ## Visual rules
@@ -19,4 +19,6 @@ The site is a reading tool. Content and accessibility take priority over visual 
 
 ## Keep working
 
-Canonical URLs, old URL aliases, RSS, search, code copy, Mermaid, incident simulators, and the Technology Evolution Map remain available. Special experiences may use their own CSS, while navigation and reading pages follow the plain design.
+Canonical URLs and old URL aliases for writing and cases, RSS, search, code copy, and Mermaid remain available.
+
+The owner requested removal of Incident Labs and the Technology Evolution Map, including their legacy URLs. This supersedes the requirements to retain those collections and capabilities in ADR-0001 through ADR-0004.

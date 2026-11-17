@@ -16,22 +16,6 @@
       </item>
 
       <item>
-        <title>운영 실습</title>
-        <link>https://kedzie-dev.github.io/labs/</link>
-        <pubDate>Mon, 27 Jul 2026 00:00:00 &#43;0900</pubDate>
-        <guid>https://kedzie-dev.github.io/labs/</guid>
-        <description>운영 신호를 먼저 확인하고 대응 범위와 영향을 비교하는 인터랙티브 시나리오.</description>
-      </item>
-
-      <item>
-        <title>기술 진화 지도</title>
-        <link>https://kedzie-dev.github.io/tech-map/</link>
-        <pubDate>Sat, 25 Jul 2026 00:00:00 &#43;0900</pubDate>
-        <guid>https://kedzie-dev.github.io/tech-map/</guid>
-        <description>웹의 탄생부터 AI 에이전트까지, 시간축과 인과 관계로 기술 선택의 흐름을 읽습니다.</description>
-      </item>
-
-      <item>
         <title>대표 운영 사례</title>
         <link>https://kedzie-dev.github.io/cases/</link>
         <pubDate>Fri, 24 Jul 2026 00:00:00 &#43;0900</pubDate>

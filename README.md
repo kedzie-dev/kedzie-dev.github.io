@@ -5,12 +5,11 @@ HTML·CSS·JavaScript를 직접 편집하는 GitHub Pages 블로그입니다. �
 ## 파일 위치
 
 - `site/index.html`: 홈
-- `site/notes/`, `site/cases/`, `site/labs/`, `site/tech-map/`: 각 컬렉션과 개별 페이지
+- `site/notes/`, `site/cases/`: 글·사례 컬렉션과 개별 페이지
 - `site/css/`: 공통 스타일
 - `site/js/atlas.js`: 검색과 코드 복사
 - `site/lib/mermaid/mermaid.min.js`: 로컬 Mermaid 라이브러리
-- `site/simulator*.js`, `site/tech-evolution-map*.js`: 실습과 기술 지도
-- `site/posts/`, `site/portfolio/`, `site/simulator/`, `site/tech-evolution-map/`: 이전 URL의 이동 페이지
+- `site/posts/`, `site/portfolio/`: 이전 URL의 이동 페이지
 
 `site/`의 모든 파일은 공개됩니다. 초안이나 비공개 자료는 이 디렉터리에 두지 않습니다.
 
